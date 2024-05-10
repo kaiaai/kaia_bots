@@ -2,6 +2,8 @@
 
 [Kaia.ai](https://kaia.ai) is a platform for DIY home robots. Please sign up for an early launch invite [here](https://remake.ai).
 
+Please visit the [Support Forum](https://github.com/makerspet/support/discussions/)!
+
 Kaia.ai robotics software platform consists of these parts:
 - Micro-ROS Arduino library for Kaia.ai robots [repo](https://github.com/kaiaai/micro_ros_arduino_kaia)
 - End-user and development ROS2 Docker images [repo](https://github.com/kaiaai/docker)
