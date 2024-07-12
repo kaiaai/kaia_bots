@@ -1,6 +1,6 @@
 # Kaia.ai Arduino/ROS2 home robots
 
-[Kaia.ai](https://kaia.ai) is a software platform for intelligent robots. 
+[Kaia.ai](https://kaia.ai) is a software platform for intelligent robots. Please read our blog for [more](https://kaia.ai/blog/what-is-kaia-ai/).
 
 Please sign up for a Kickstarter pre-launch invite [here](https://remake.ai). We plan to launch on Kickstarter in 2nd half of 2024 via our [Maker's Pet](https://makerspet.com) hardware partner's campaign.
 
