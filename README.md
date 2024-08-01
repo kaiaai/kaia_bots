@@ -1,20 +1,26 @@
 # Kaia.ai Arduino/ROS2 home robots
 
-[Kaia.ai](https://kaia.ai) is a platform for DIY home robots. Please sign up for an early launch invite [here](https://remake.ai).
+[Kaia.ai](https://kaia.ai) is a software platform for intelligent robots. Please read our blog for [more](https://kaia.ai/blog/what-is-kaia-ai/).
 
-Kaia.ai robotics software platform consists of these parts:
-- Micro-ROS Arduino library for Kaia.ai robots [repo](https://github.com/kaiaai/micro_ros_arduino_kaia)
-- End-user and development ROS2 Docker images [repo](https://github.com/kaiaai/docker)
+Please sign up for a Kickstarter pre-launch invite [here](https://remake.ai). We plan to launch on Kickstarter in 2nd half of 2024 via our [Maker's Pet](https://makerspet.com) hardware partner's campaign.
+
+Please visit the [Support Forum](https://github.com/makerspet/support/discussions/)!
+
+Kaia.ai robotics software platform is actively evolving and currently consists of these parts:
+- Micro-ROS Arduino library for Kaia.ai-compatible robots [repo](https://github.com/kaiaai/micro_ros_arduino_kaia)
+- End-user and development ROS2 Docker images [repo](https://github.com/kaiaai/install)
 - Robot simulation ROS2 packages [repo](https://github.com/kaiaai/kaiaai_simulations)
 - Robot operation ROS2 packages [repo](https://github.com/kaiaai/kaiaai), including SLAM mapping, navigation, etc.
 - [WebRTC-based](https://github.com/kaiaai/kaiaai_python) image/video/data streaming
   - [Python-based](https://github.com/kaiaai/kaiaai_python) image/audio sensing, processing (ML), decision making (ML/AI), robot face animation (TODO)
 - Cloud software infrastructure (TODO)
+- robot skills store (TODO)
 
 ## Kaia.ai compatible robots
 - Maker's Pet [Loki](https://github.com/makerspet/makerspet_loki) 200mm 3D-printable pet robot
 - Maker's Pet [Fido](https://github.com/makerspet/makerspet_fido) 250mm 3D-printable pet robot
 - Maker's Pet [Snoopy](https://github.com/makerspet/makerspet_snoopy) 300mm 3D-printable pet robot
+- Maker's Pet Mini 120mm
 - Add your own version to the [list](https://github.com/topics/kaiaai-robot)
 
 ## Setup
@@ -30,7 +36,7 @@ Kaia.ai robotics software platform consists of these parts:
 - LDROBOT LD14P
 - Camsense X1
 
-The entire up-to-date list of supported LiDAR/LDS is [here](https://github.com/kaiaai/LDS).
+The entire up-to-date list of supported LiDAR is [here](https://github.com/kaiaai/LDS).
 
 ## Command cheat sheets
 
@@ -99,7 +105,7 @@ ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_mo
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2A
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2B
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2G
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDLIDAR-LD14P
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDROBOT-LD14P
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=CAMSENSE-X1
 ```
 
