@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
 #
@@ -22,10 +21,11 @@ from launch.actions import DeclareLaunchArgument, OpaqueFunction, LogInfo
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from launch.conditions import UnlessCondition
 # from launch.conditions import LaunchConfigurationEquals
 
 
-def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time):
+def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time, no_web_server):
     robot_model_str = context.perform_substitution(robot_model)
     lds_model_str = context.perform_substitution(lds_model)
     use_sim_time_str = context.perform_substitution(use_sim_time)
@@ -87,7 +87,7 @@ def make_nodes(context: LaunchContext, robot_model, lds_model, use_sim_time):
             }]
         ),
         Node(
-#           condition=UnlessCondition(no_web_server),
+           condition=UnlessCondition(no_web_server),
            package='kaiaai_python',
             executable='web_server',
             name='web_server',
@@ -119,11 +119,11 @@ def generate_launch_description():
             choices=['true', 'false'],
             description='Use simulation (Gazebo) clock if true'
         ),
-#        DeclareLaunchArgument(
-#            name='no_web_server',
-#            default_value='false',
-#            description='Do NOT launch WebRTC web server'
-#        ),
+        DeclareLaunchArgument(
+            name='no_web_server',
+            default_value='true',
+            description='Do NOT launch WebRTC web server'
+        ),
         Node(
             package='micro_ros_agent',
             executable='micro_ros_agent',
@@ -135,5 +135,6 @@ def generate_launch_description():
             LaunchConfiguration('robot_model'),
             LaunchConfiguration('lds_model'),
             LaunchConfiguration('use_sim_time'),
+            LaunchConfiguration('no_web_server'),
         ]),
     ])
