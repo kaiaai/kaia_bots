@@ -33,6 +33,7 @@
 #include "lds_ydlidar_x3_pro.h"
 #include "lds_ydlidar_x3.h"
 #include "lds_ydlidar_x2_x2l.h"
+#include "lds_ydlidar_scl.h"
 #include "lds_neato_xv11.h"
 #include "lds_lds02rr.h"
 #include "lds_rplidar_a1.h"
@@ -307,9 +308,14 @@ private:
                               plds = new LDS_YDLidarX4();
                               break;
                             } else {
-                              if (s.compare(LDS_CamsenseX1::get_model_name()) == 0) {
-                                plds = new LDS_CamsenseX1();
+                              if (s.compare(LDS_YDLidarSCL::get_model_name()) == 0) {
+                                plds = new LDS_YDLidarSCL();
                                 break;
+                              } else {
+                                if (s.compare(LDS_CamsenseX1::get_model_name()) == 0) {
+                                  plds = new LDS_CamsenseX1();
+                                  break;
+                                }
                               }
                             }
                           }
