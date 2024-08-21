@@ -21,7 +21,6 @@ class LDS_YDLidarSCL : public LDS
 {
 protected:
   static const int RESP_MEASUREMENT_SYNCBIT = (0x1<<0);
-//  static const int RESP_MEASUREMENT_QUALITY_SHIFT = 2;
   static const int RESP_MEASUREMENT_CHECKBIT = (0x1<<0);
   static const int RESP_MEASUREMENT_ANGLE_SHIFT = 1;
   static const int RESP_MEASUREMENT_ANGLE_SAMPLE_SHIFT = 8;

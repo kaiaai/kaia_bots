@@ -9,12 +9,12 @@ kaiaai_telemetry_node:
 #      lds_model: "LDS02RR"
 
     laser_sensor:
-      model:            ['YDLIDAR-X4','XIAOMI-LDS02RR','YDLIDAR-X2-X2L','YDLIDAR-X3-PRO','YDLIDAR-X3-PRO','YDLIDAR-X3','NEATO-XV11','RPLIDAR-A1','DELTA-2G','DELTA-2A','DELTA-2B','LDROBOT-LD14P','CAMSENSE-X1']
-      angle_offset_deg: [         0.0,          -180.0,             0.0,             0.0,             0.0,         0.0,      -180.0,      -180.0,     -90.0,     -90.0,     -90.0,         -180.0,         16.0]
-      pub_scan_size:    [         720,             360,             720,             720,             720,         720,         360,         720,       360,       720,       360,            720,          360]
-      clockwise:        [        true,            true,            true,            true,            true,        true,       false,        true,      true,      true,      true,           true,         true]
-      range_min_meters: [        0.15,            0.15,             0.1,            0.12,            0.12,        0.12,        0.15,        0.15,      0.15,      0.15,       0.2,            0.1,          0.1]
-      range_max_meters: [        12.0,             6.0,             8.0,             8.0,             8.0,         8.0,         6.0,        12.0,       5.0,       8.0,       8.0,            8.0,          8.0]
+      model:            ['YDLIDAR-X4','XIAOMI-LDS02RR','YDLIDAR-X2-X2L','YDLIDAR-X3-PRO','YDLIDAR-X3-PRO','YDLIDAR-X3','NEATO-XV11','RPLIDAR-A1','DELTA-2G','DELTA-2A','DELTA-2B','LDROBOT-LD14P','CAMSENSE-X1','YDLIDAR-SCL']
+      angle_offset_deg: [         0.0,          -180.0,             0.0,             0.0,             0.0,         0.0,      -180.0,      -180.0,     -90.0,     -90.0,     -90.0,         -180.0,         16.0,          0.0]
+      pub_scan_size:    [         720,             360,             720,             720,             720,         720,         360,         720,       360,       720,       360,            720,          360,          360]
+      clockwise:        [        true,            true,            true,            true,            true,        true,       false,        true,      true,      true,      true,           true,         true,         true]
+      range_min_meters: [        0.15,            0.15,             0.1,            0.12,            0.12,        0.12,        0.15,        0.15,      0.15,      0.15,       0.2,            0.1,          0.1,         0.12]
+      range_max_meters: [        12.0,             6.0,             8.0,             8.0,             8.0,         8.0,         6.0,        12.0,       5.0,       8.0,       8.0,            8.0,          8.0,          8.0]
       # 'HLS-LFCD2', 'HLS-LFCD3', 'XIAOMI-LDS01RR', 'LDROBOT-LD20'
       #         0.0,         0.0,              0.0,
       #         360,         360,              360,
