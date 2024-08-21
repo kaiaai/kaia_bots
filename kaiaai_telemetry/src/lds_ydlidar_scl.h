@@ -242,11 +242,17 @@ state2:
             state = 2;
             return RESULT_NOT_READY;
           }
-          if ((recvPos & 1) == 1) {
-            Valu8Tou16 += (currentByte << 8);
-            CheckSumCal ^= Valu8Tou16;
-          } else {
-            Valu8Tou16 = currentByte;
+
+          switch (recvPos % 3) {
+            case 0:
+              CheckSumCal ^= currentByte;
+              break;
+            case 1:
+              Valu8Tou16 = currentByte;
+              break;
+            case 2:
+              Valu8Tou16 += (currentByte << 8);
+              CheckSumCal ^= Valu8Tou16;
           }
 
           packageBuffer[package_recvPos + recvPos] = currentByte;
