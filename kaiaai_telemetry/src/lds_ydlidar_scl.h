@@ -20,24 +20,8 @@
 class LDS_YDLidarSCL : public LDS
 {
 protected:
-  static const int RESP_MEASUREMENT_SYNCBIT = (0x1<<0);
-  static const int RESP_MEASUREMENT_CHECKBIT = (0x1<<0);
-  static const int RESP_MEASUREMENT_ANGLE_SHIFT = 1;
-  static const int RESP_MEASUREMENT_ANGLE_SAMPLE_SHIFT = 8;
-
-  static const int PACKAGE_SAMPLE_BYTES = 2;
   static const int PACKAGE_SAMPLE_MAX_LENGTH = 40;
-  static const int NODE_DEFAULT_QUALITY = 10; // (10<<2)
-  static const int NODE_SYNC = 1;
-  static const int NODE_NOTSYNC = 2;
   static const int PACKAGE_PAID_BYTES = 10;
-  static const int PH = 0x55AA;
-
-  enum {
-    CT_NORMAL = 0,
-    CT_RING_START = 1,
-    CT_TAIL,
-  } CT;
 
   struct node_info_scl_t {
     float angle_deg;
@@ -48,8 +32,8 @@ protected:
 
   struct cloud_point_scl_t {
     uint8_t intensity;
-    uint8_t distance0;
-    uint8_t distance1;
+    uint8_t distance_lsb;
+    uint8_t distance_msb;
   } __attribute__((packed));
 
   struct node_package_scl_t {
@@ -291,9 +275,9 @@ state2:
       if (CheckSumResult == true) {
         int32_t AngleCorrectForDistance = 0;
         point = package_scl.packageSampleDistance[package_Sample_Index];
-        node.distance_mm = (point.distance0 >> 2) + (point.distance1 << 8);
+        node.distance_mm = (point.distance_lsb >> 2) + (point.distance_msb << 6);
         node.intensity = point.intensity;
-        node.quality_flag = point.distance0 && 0x03;
+        node.quality_flag = point.distance_lsb && 0x03;
 
         if (node.distance_mm != 0) {
           AngleCorrectForDistance = (int32_t)(atan(17.8f/((float)node.distance_mm))*3666.929888837269f);
