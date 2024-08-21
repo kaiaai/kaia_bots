@@ -21,7 +21,6 @@ class LDS_YDLidarX4 : public LDS
 {
 protected:
   static const int RESP_MEASUREMENT_SYNCBIT = (0x1<<0);
-//  static const int RESP_MEASUREMENT_QUALITY_SHIFT = 2;
   static const int RESP_MEASUREMENT_CHECKBIT = (0x1<<0);
   static const int RESP_MEASUREMENT_ANGLE_SHIFT = 1;
   static const int RESP_MEASUREMENT_ANGLE_SAMPLE_SHIFT = 8;
@@ -156,10 +155,6 @@ state1:  // hack
           break;
         case 2:
           SampleNumlAndCTCal = currentByte;
-//          if ((currentByte != CT_NORMAL) && (currentByte != CT_RING_START)) {
-//            recvPos = 0;
-//            continue;
-//          }
           break;
         case 3:
           SampleNumlAndCTCal += (currentByte<<RESP_MEASUREMENT_ANGLE_SAMPLE_SHIFT);
@@ -265,11 +260,6 @@ state2:
       CheckSumCal ^= LastSampleAngleCal;
 
       CheckSumResult = CheckSumCal == CheckSum;
-//      if (CheckSumCal != CheckSum) {
-//        CheckSumResult = false;
-//      } else {
-//        CheckSumResult = true;
-//      }
     }
 
     scan_completed = false;
@@ -281,15 +271,8 @@ state2:
 
     while(true) {
 
-//      uint8_t package_CT;
       node_info node;
 
-      //package_CT = package.package_CT;
-      //if ((package_CT & 0x01) == CT_NORMAL) {
-      //  node.sync_quality = NODE_DEFAULT_QUALITY + NODE_NOTSYNC;
-      //} else {
-      //  node.sync_quality = NODE_DEFAULT_QUALITY + NODE_SYNC;
-      //}
       node.sync_quality = NODE_DEFAULT_QUALITY;
 
       if (CheckSumResult == true) {
@@ -316,7 +299,6 @@ state2:
           }
         }
       } else {
-//        node.sync_quality = NODE_DEFAULT_QUALITY + NODE_NOTSYNC;
         node.angle_q6_checkbit = RESP_MEASUREMENT_CHECKBIT;
         node.distance_q2 = 0;
         package_Sample_Index = 0;
@@ -327,16 +309,9 @@ state2:
       // Dump out processed data
       float point_distance_mm = node.distance_q2*0.25f;
       float point_angle_deg = (node.angle_q6_checkbit >> RESP_MEASUREMENT_ANGLE_SHIFT)/64.0f;
-//      uint8_t point_quality = (node.sync_quality>>RESP_MEASUREMENT_QUALITY_SHIFT);
       uint8_t point_quality = NODE_DEFAULT_QUALITY;
-//      bool point_startBit = (node.sync_quality & RESP_MEASUREMENT_SYNCBIT);
-      //point.sampleIndex = package_Sample_Index;
-      //point.firstSampleAngle = FirstSampleAngle/64.0f;
-      //point.intervalSampleAngle = IntervalSampleAngle/64.0f;
-      //point.angleCorrectionForDistance = AngleCorrectForDistance/64.0f;
 
-//      postScanPoint(context, point_angle_deg, point_distance_mm, point_quality, point_startBit);
-      postScanPoint(context, point_angle_deg, point_distance_mm, point_quality, scan_completed);
+      postScanPoint(context, point_angle_deg, point_distance_mm, point_quality, 0, scan_completed);
       scan_completed = false;
 
       // Dump finished?

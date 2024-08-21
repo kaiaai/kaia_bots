@@ -213,7 +213,7 @@ public:
           if (angle_corrected < 0)
             angle_corrected += 360;
 
-          postScanPoint(context, angle_corrected, distance_mm, quality, scan_completed);
+          postScanPoint(context, angle_corrected, distance_mm, quality, 0, scan_completed);
           angle_deg_prev = angle_deg;
         }
       }

@@ -77,7 +77,7 @@ public:
         uint8_t quality = (node.sync_quality >> RESP_MEAS_QUALITY_SHIFT);
         bool scan_completed = (node.sync_quality & RESP_MEAS_SYNCBIT);
 
-        postScanPoint(context, angle_deg, distance_mm, quality, scan_completed);
+        postScanPoint(context, angle_deg, distance_mm, quality, 0, scan_completed);
 
         recvPos = 0;
         return RESULT_OK;

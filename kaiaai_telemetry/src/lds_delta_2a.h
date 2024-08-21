@@ -183,7 +183,7 @@ public:
           uint16_t distance_mm_x4 = decodeUInt16(scan_packet.sample[idx].distance_mm_x4);
           float distance_mm = distance_mm_x4 * 0.25;
           float quality = scan_packet.sample[idx].quality;
-          postScanPoint(context, angle_deg, distance_mm, quality, scan_completed);
+          postScanPoint(context, angle_deg, distance_mm, quality, 0, scan_completed);
           scan_completed = false;
         }
       }

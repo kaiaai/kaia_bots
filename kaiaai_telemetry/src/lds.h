@@ -23,7 +23,7 @@
 class LDS
 {
 public:
-  typedef void (*ScanPointCallback)(const void * context, float, float, float, bool);
+  typedef void (*ScanPointCallback)(const void * context, float, float, float, float, bool);
   typedef int (*ReadByteCallback)(const void * context);
 
   enum result_t {
@@ -62,10 +62,10 @@ public:
 
 protected:
   void postScanPoint(const void * context, float angle_deg, float dist_mm,
-    float quality, bool scan_completed) {
+    float quality, float intensity_lsb, bool scan_completed) {
     // dist_mm <=0 indicates invalid point
     if (scan_point_callback)
-      scan_point_callback(context, angle_deg, dist_mm, quality, scan_completed);
+      scan_point_callback(context, angle_deg, dist_mm, quality, intensity_lsb, scan_completed);
   }
 
   int readByte(const void * context) {

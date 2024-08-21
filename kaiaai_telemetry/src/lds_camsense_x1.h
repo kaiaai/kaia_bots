@@ -177,7 +177,7 @@ public:
         angle_deg = angle_deg > 360 ? angle_deg - 360 : angle_deg;
         distance_mm = distance_mm < 0 ? 0 : distance_mm;
 
-        postScanPoint(context, angle_deg, distance_mm, quality, scan_completed);
+        postScanPoint(context, angle_deg, distance_mm, quality, 0, scan_completed);
       }
       parser_idx = 0;
       break;

@@ -61,13 +61,14 @@ public:
     this->declare_parameter("laser_sensor.pub_scan_size", std::vector<int>({720, 360}));
     this->declare_parameter("laser_sensor.range_min_meters", std::vector<double>({0.15, 0.15}));
     this->declare_parameter("laser_sensor.range_max_meters", std::vector<double>({12.0, 6.0}));
+    this->declare_parameter("laser_sensor.intensity", std::vector<bool>({false, false}));
 
     this->declare_parameter("laser_scan.topic_name_pub", "scan");
     this->declare_parameter("laser_scan.frame_id", "base_scan");
     this->declare_parameter("laser_scan.lds_model", "YDLIDAR-X4");
     this->declare_parameter("laser_scan.mask_radius_meters", 0.0);
     this->declare_parameter("laser_scan.discard_broken_scans", false);
-    this->declare_parameter("laser_scan.rotation_deg", 0.0);
+    this->declare_parameter("laser_scan.orientation_deg", 0.0);
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
 
@@ -118,6 +119,7 @@ public:
     prev_stamp_.sec = 0;
     prev_stamp_.nanosec = 0;
     broken_scan_ = false;
+    publish_intensity_ = false;
   }
 
   ~KaiaaiTelemetry()
@@ -250,11 +252,12 @@ private:
     const std::vector<long int> pub_scan_size = this->get_parameter("laser_sensor.pub_scan_size").as_integer_array();
     const std::vector<double> range_min_meters = this->get_parameter("laser_sensor.range_min_meters").as_double_array();
     const std::vector<double> range_max_meters = this->get_parameter("laser_sensor.range_max_meters").as_double_array();
+    const std::vector<bool> publish_intensity = this->get_parameter("laser_sensor.intensity").as_bool_array();
 
     long unsigned int model_count = model.size();
     if (pub_scan_size.size() != model_count || angle_offset_deg.size() != model_count
         || range_min_meters.size() != model_count || range_max_meters.size() != model_count
-        || clockwise.size() != model_count) {
+        || clockwise.size() != model_count || publish_intensity.size() != model_count) {
       RCLCPP_FATAL(this->get_logger(), "laser_sensor parameter array sizes must be equal");
       rclcpp::shutdown();
     }
@@ -342,14 +345,16 @@ private:
     plds->setReadByteCallback(read_byte_callback);
     plds->setScanPointCallback(scan_point_callback);
 
-    double lidar_rotation_deg = this->get_parameter("laser_scan.rotation_deg").as_double();
+    double lidar_orientation_deg = this->get_parameter("laser_scan.orientation_deg").as_double();
 
-    angle_offset_deg_ = angle_offset_deg[model_idx] + lidar_rotation_deg;
+    angle_offset_deg_ = angle_offset_deg[model_idx] + lidar_orientation_deg;
     clockwise_ = clockwise[model_idx];
     pub_scan_size_ = pub_scan_size[model_idx];
     range_min_meters_ = range_min_meters[model_idx];
     range_max_meters_ = range_max_meters[model_idx];
     ranges_.resize(pub_scan_size_);
+    publish_intensity_ = publish_intensity[model_idx];
+    intensities_.resize(pub_scan_size_);
 
     if (pub_scan_size_ <= 0) {
       RCLCPP_FATAL(this->get_logger(), "Invalid pub_scan_size %d", pub_scan_size_);
@@ -413,14 +418,14 @@ private:
   }
 
   static void scan_point_callback(const void * context,
-    float angle_deg, float distance_mm, float quality, bool scan_completed)
+    float angle_deg, float distance_mm, float quality, float intensity, bool scan_completed)
   {
     void * ctx = const_cast<void *>(context);
     return reinterpret_cast<KaiaaiTelemetry*>(ctx)->process_scan_point(
-      angle_deg, distance_mm, quality, scan_completed);
+      angle_deg, distance_mm, quality, intensity, scan_completed);
   }
 
-  void process_scan_point(float angle_deg, float distance_mm, float quality, bool scan_completed)
+  void process_scan_point(float angle_deg, float distance_mm, float quality, float intensity, bool scan_completed)
   {
     (void)quality; // Suppress unused parameter warning
 
@@ -456,6 +461,7 @@ private:
     if (idx >= 0 && idx < ((long int)ranges_.size()))
     {
       ranges_[idx] = distance_meters;
+      intensities_[idx] = intensity;
       scan_point_count_valid_++;
     }
   }
@@ -463,6 +469,7 @@ private:
   void clear_ranges_buffer()
   {
     std::fill(ranges_.begin(), ranges_.end(), 0);
+    std::fill(intensities_.begin(), ranges_.end(), 0);
     scan_point_count_valid_ = 0;
     scan_point_count_total_ = 0;
     lds_invalid_packet_count_ = 0;
@@ -489,6 +496,8 @@ private:
     laser_scan_msg.angle_increment = laser_scan_angle_increment * DEG_TO_RAD;
     laser_scan_msg.range_min = range_min_meters_;
     laser_scan_msg.range_max = range_max_meters_;
+    if (publish_intensity_)
+      laser_scan_msg.intensities = intensities_;
 
     float scan_time = plds->get_scan_time();
     if (scan_time <= 0) {
@@ -499,7 +508,6 @@ private:
     scan_time = scan_time < 0 ? 0 : scan_time;
     laser_scan_msg.scan_time = scan_time > 0 ? scan_time : 0;
     laser_scan_msg.time_increment = scan_time/pub_scan_size_;
-    //float32[] intensities;
     prev_stamp_ = pmsg->stamp;
 
     laser_scan_pub_->publish(laser_scan_msg);
@@ -513,6 +521,7 @@ private:
   rclcpp::Publisher<kaiaai_msgs::msg::WifiState>::SharedPtr wifi_state_pub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::vector<float> ranges_;
+  std::vector<float> intensities_;
   unsigned int seq_last_;
   unsigned int scan_point_count_valid_;
   unsigned int scan_point_count_total_;
@@ -530,6 +539,7 @@ private:
   double range_max_meters_;
   double mask_radius_meters_;
   bool broken_scan_;
+  bool publish_intensity_;
 
   kaiaai_msgs::msg::KaiaaiTelemetry2 * pmsg;
   builtin_interfaces::msg::Time prev_stamp_;

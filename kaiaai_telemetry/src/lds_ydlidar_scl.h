@@ -298,13 +298,14 @@ state2:
       } else {
         node.angle_deg = 0;
         node.distance_mm = 0;
+        node.intensity = 0;
         package_Sample_Index = 0;
         state = 0;
         return RESULT_CHECKSUM_ERROR;
       }
 
       // Dump out processed data
-      postScanPoint(context, node.angle_deg, node.distance_mm, node.quality_flag, scan_completed);
+      postScanPoint(context, node.angle_deg, node.distance_mm, node.quality_flag, node.intensity, scan_completed);
       scan_completed = false;
 
       // Dump finished?

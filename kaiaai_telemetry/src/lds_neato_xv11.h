@@ -226,8 +226,7 @@ public:
             uint8_t err = aryInvalidDataFlag[ix] & BAD_DATA_MASK;
 
             int angle = startingAngle + ix;
-            postScanPoint(context, angle, err ? 0 : aryDist[ix],
-              aryQuality[ix], angle == 0);
+            postScanPoint(context, angle, err ? 0 : aryDist[ix], aryQuality[ix], 0, angle == 0);
           }
         } else {
           // Bad packet
