@@ -28,7 +28,7 @@ Kaia.ai robotics software platform is actively evolving and currently consists o
   - This video is somewhat outdated; an up-to-date video will be published at a later time
 
 ## Supported LiDAR/LDS sensors
-- YDLIDAR X4 (default), X2/X2L, X3, X3PRO
+- YDLIDAR X4 (default), X2/X2L, X3, X3PRO, SCL
 - Neato XV11
 - Xiaomi Roborock 1st gen LDS02RR (~$16 off AliExpress including shipping)
 - SLAMTEC RPLIDAR A1
@@ -101,6 +101,7 @@ ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_mo
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3-PRO
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-SCL
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2A
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2B
@@ -182,7 +183,10 @@ Initial versions of packages in this repo are based on ROBOTIS
 
 ## Release notes
 v0.10.0 in debug
-- TODO
+- added YDLIDAR SCL
+  - added intensity telemetry publication
+- added Maker's Pet Mini
+  - added LiDAR orientation_deg
 
 v0.9.0
 - added WebRTC, web server, OpenCV launch
