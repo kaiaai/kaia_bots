@@ -469,7 +469,7 @@ private:
   void clear_ranges_buffer()
   {
     std::fill(ranges_.begin(), ranges_.end(), 0);
-    std::fill(intensities_.begin(), ranges_.end(), 0);
+    std::fill(intensities_.begin(), intensities_.end(), 0);
     scan_point_count_valid_ = 0;
     scan_point_count_total_ = 0;
     lds_invalid_packet_count_ = 0;
