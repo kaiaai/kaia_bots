@@ -19,6 +19,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "kaiaai_msgs/msg/kaiaai_telemetry2.hpp"
 #include "kaiaai_msgs/msg/wifi_state.hpp"
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -514,6 +515,7 @@ private:
   }
 
   rclcpp::Subscription<kaiaai_msgs::msg::KaiaaiTelemetry2>::SharedPtr telem_sub_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_pub_;

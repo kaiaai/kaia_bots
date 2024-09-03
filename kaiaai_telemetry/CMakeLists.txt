@@ -13,6 +13,7 @@ find_package(kaiaai_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
@@ -21,7 +22,7 @@ add_executable(telem_test_pub src/telem_test_pub.cpp)
 ament_target_dependencies(telem_test_pub rclcpp kaiaai_msgs)
 
 add_executable(telem src/telem.cpp)
-ament_target_dependencies(telem rclcpp kaiaai_msgs nav_msgs sensor_msgs geometry_msgs tf2_msgs tf2_ros tf2)
+ament_target_dependencies(telem rclcpp kaiaai_msgs nav_msgs sensor_msgs geometry_msgs diagnostic_msgs tf2_msgs tf2_ros tf2)
 
 install(TARGETS
   telem_test_pub
