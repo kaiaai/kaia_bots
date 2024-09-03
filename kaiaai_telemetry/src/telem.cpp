@@ -72,6 +72,7 @@ public:
     this->declare_parameter("laser_scan.orientation_deg", 0.0);
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
+    this->declare_parameter("diagnostics.topic_name_sub", "diagnostics");
 
     this->declare_parameter("tf.frame_id", "odom");
     this->declare_parameter("tf.child_frame_id", "base_footprint");
@@ -92,7 +93,10 @@ public:
 
     telem_sub_ = this->create_subscription<kaiaai_msgs::msg::KaiaaiTelemetry2>(
       this->get_parameter("telemetry.topic_name_sub").as_string(),
-      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::topic_callback, this, _1));
+      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::telem_topic_callback, this, _1));
+    diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+      this->get_parameter("diagnostics.topic_name_sub").as_string(),
+      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::diag_topic_callback, this, _1));
     odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(
       this->get_parameter("odometry.topic_name_pub").as_string(), 10);
     joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
@@ -132,7 +136,7 @@ public:
   }
 
 private:
-  void topic_callback(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg) // const
+  void telem_topic_callback(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg) // const
   {
     long int seq_diff = (long int)telem_msg.seq - (long int)seq_last_;
     seq_last_ = telem_msg.seq;
@@ -238,6 +242,28 @@ private:
     battery_state_msg.percentage = (float) percentage;
     battery_state_pub_->publish(battery_state_msg);
   }
+
+
+
+
+  void diag_topic_callback(const diagnostic_msgs::msg::DiagnosticArray & diag_msg) // const
+  {
+
+
+    //RCLCPP_INFO(this->get_logger(), "%ld message(s) lost", seq_diff-1);
+    //RCLCPP_INFO(this->get_logger(), "Diagnostic message %s", diag_msg.status[]);
+    for (long unsigned int i = 0; i < diag_msg.status.size(); i++) {
+      auto status_msg = diag_msg.status[i];
+      RCLCPP_INFO(this->get_logger(), "%lu diag status %s", i, status_msg.name.c_str());
+
+    }
+
+
+    //auto diag_status_msg = diagnostic_msgs::msg::DiagnosticStatus();
+  }
+
+
+
 
   void lds_setup()
   {
