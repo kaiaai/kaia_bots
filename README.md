@@ -103,9 +103,9 @@ ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_mo
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-SCL
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2A
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2B
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2G
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2A
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2B
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDROBOT-LD14P
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=CAMSENSE-X1
 ```
