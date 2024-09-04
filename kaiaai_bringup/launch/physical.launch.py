@@ -107,9 +107,11 @@ def generate_launch_description():
         DeclareLaunchArgument(
             name='lds_model',
             default_value='AUTO',
-            choices=['YDLIDAR-X4', 'XIAOMI-LDS02RR', 'YDLIDAR-X2-X2L', 'DELTA-2G',
-              'YDLIDAR-X3-PRO', 'YDLIDAR-X3', 'NEATO-XV11', 'RPLIDAR-A1', 'DELTA-2A',
-              'DELTA-2B', 'LDROBOT-LD14P', 'CAMSENSE-X1', 'YDLIDAR-SCL', 'AUTO'],
+            choices=['YDLIDAR-X4', 'XIAOMI-LDS02RR', 'YDLIDAR-X2-X2L',
+              '3IROBOTIX-DELTA-2G', 'YDLIDAR-X3-PRO', 'YDLIDAR-X3',
+              'NEATO-XV11', 'SLAMTEC-RPLIDAR-A1', '3IROBOTIX-DELTA-2A',
+              '3IROBOTIX-DELTA-2B', 'LDROBOT-LD14P', 'CAMSENSE-X1',
+              'YDLIDAR-SCL', 'AUTO'],
             description='Laser distance scan sensor model'
         ),
         DeclareLaunchArgument(
