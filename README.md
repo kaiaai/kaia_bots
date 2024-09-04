@@ -108,6 +108,7 @@ ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_mo
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDROBOT-LD14P
 ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=CAMSENSE-X1
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=SLAMTEC-RPLIDAR-A1
 ```
 
 ### View, set physical robot's parameters
@@ -208,8 +209,8 @@ v0.7.0
 
 v0.6.0 2/11/2024
 - added 3irobotix Delta-2A, Delta-2G
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2A`
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=DELTA-2G`
+  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2A`
+  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G`
 
 2/5/2024
 - added LiDAR/LDS laser distance scan sensors support
@@ -217,7 +218,7 @@ v0.6.0 2/11/2024
   - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3`
   - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3-PRO`
   - Neato XV11 `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11`
-  - RPLIDAR A1 `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=RPLIDAR-A1`
+  - RPLIDAR A1 `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=SLAMTEC-RPLIDAR-A1`
 - split kaiaai_telemetry config into default and custom
   - `kaiaai/kaiaai_telemetry/config/telem.yaml` is the default config
   - `makerspet_loki/config/telem.yaml` is the custom config for the Loki robot model
@@ -226,7 +227,7 @@ v0.6.0 2/11/2024
 
 1/28/2024
 - added YDLIDAR X2 support to kaiaai_telemetry 
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2`
+  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L`
 
 1/21/2024
 - kaiaai_telemetry now supports multiple LiDAR/LDS laser distance scan sensors
