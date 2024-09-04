@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO check online timeout, post offline event
-// TODO extract robot package name, make it available (as parameter?)
-
 #include <functional>
 #include <memory>
 #include <string>
@@ -22,8 +19,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "kaiaai_msgs/msg/kaiaai_telemetry2.hpp"
 #include "kaiaai_msgs/msg/wifi_state.hpp"
-#include "kaiaai_msgs/msg/online_event.hpp"
-#include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -76,11 +71,6 @@ public:
     this->declare_parameter("laser_scan.orientation_deg", 0.0);
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
-    this->declare_parameter("diagnostics.topic_name_sub", "diagnostics");
-    this->declare_parameter("diagnostics.lds_component_name", "LIDAR");
-    this->declare_parameter("diagnostics.lds_model_key", "MODEL");
-    this->declare_parameter("online_event.topic_name_pub", "online");
-    this->declare_parameter("online_event.timeout_sec", 30.0);
 
     this->declare_parameter("tf.frame_id", "odom");
     this->declare_parameter("tf.child_frame_id", "base_footprint");
@@ -101,10 +91,7 @@ public:
 
     telem_sub_ = this->create_subscription<kaiaai_msgs::msg::KaiaaiTelemetry2>(
       this->get_parameter("telemetry.topic_name_sub").as_string(),
-      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::telem_topic_callback, this, _1));
-    diag_sub_ = this->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
-      this->get_parameter("diagnostics.topic_name_sub").as_string(),
-      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::diag_topic_callback, this, _1));
+      rclcpp::SensorDataQoS(), std::bind(&KaiaaiTelemetry::topic_callback, this, _1));
     odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(
       this->get_parameter("odometry.topic_name_pub").as_string(), 10);
     joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
@@ -115,8 +102,6 @@ public:
       this->get_parameter("battery.topic_name_pub").as_string(), 10);
     wifi_state_pub_ = this->create_publisher<kaiaai_msgs::msg::WifiState>(
       this->get_parameter("wifi.topic_name_pub").as_string(), 10);
-    online_event_pub_ = this->create_publisher<kaiaai_msgs::msg::OnlineEvent>(
-      this->get_parameter("online_event.topic_name_pub").as_string(), 10);
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     plds = NULL;
@@ -135,8 +120,6 @@ public:
     prev_stamp_.nanosec = 0;
     broken_scan_ = false;
     publish_intensity_ = false;
-
-    robot_online_ = false;
   }
 
   ~KaiaaiTelemetry()
@@ -148,7 +131,7 @@ public:
   }
 
 private:
-  void telem_topic_callback(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg) // const
+  void topic_callback(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg) // const
   {
     long int seq_diff = (long int)telem_msg.seq - (long int)seq_last_;
     seq_last_ = telem_msg.seq;
@@ -255,41 +238,6 @@ private:
     battery_state_pub_->publish(battery_state_msg);
   }
 
-  void diag_topic_callback(const diagnostic_msgs::msg::DiagnosticArray & diag_msg) // const
-  {
-
-    if (!robot_online_) {
-      robot_online_ = true;
-      auto online_event_msg = kaiaai_msgs::msg::OnlineEvent();
-      online_event_msg.event = kaiaai_msgs::msg::OnlineEvent::EVENT_ONLINE;
-      online_event_msg.diag = diag_msg;
-      online_event_pub_->publish(online_event_msg);
-    }
-
-    const std::string comp_name = this->get_parameter("diagnostics.lds_component_name").as_string();
-
-    //RCLCPP_INFO(this->get_logger(), "%ld message(s) lost", seq_diff-1);
-    //RCLCPP_INFO(this->get_logger(), "Diagnostic message %s", diag_msg.status[]);
-    for (long unsigned int i = 0; i < diag_msg.status.size(); i++) {
-      auto status_msg = diag_msg.status[i];
-      RCLCPP_INFO(this->get_logger(), "%lu diag status %s", i, status_msg.name.c_str());
-
-      if (comp_name.compare(status_msg.name) == 0) {
-        auto values = status_msg.values;
-        const std::string model_key = this->get_parameter("diagnostics.lds_model_key").as_string();
-
-        for (long unsigned int j = 0; j < values.size(); j++) {
-          auto key_value_msg = values[j];
-          if (model_key.compare(key_value_msg.key) == 0) {
-            lidar_model_ = key_value_msg.value;
-            break;
-          }
-        }
-        break;
-      }
-    }
-  }
-
   void lds_setup()
   {
     //RCLCPP_INFO(this->get_logger(), "string[] %s, double[] %s",
@@ -314,15 +262,7 @@ private:
       rclcpp::shutdown();
     }
 
-    std::string lds_model = this->get_parameter("laser_scan.lds_model").as_string();
-    bool auto_ = (lds_model.compare("AUTO") == 0);
-
-    if (auto_) {
-      if (lidar_model_.length() == 0) {
-        return;
-      }
-      lds_model = lidar_model_;
-    }
+    const std::string lds_model = this->get_parameter("laser_scan.lds_model").as_string();
 
     int model_idx = 0;
     for (auto &s: model) {
@@ -356,8 +296,7 @@ private:
                       plds = new LDS_Delta2G();
                       break;
                     } else {
-                      if (s.compare(LDS_Delta2A::get_model_name()) == 0 ||
-                          s.compare("3IROBOTIX-DELTA-2A-115200") == 0) {
+                      if (s.compare(LDS_Delta2A::get_model_name()) == 0) {
                         plds = new LDS_Delta2A();
                         break;
                       } else {
@@ -398,14 +337,9 @@ private:
     }
 
     if (plds == NULL) {
-      if (auto_) {
-        RCLCPP_WARN(this->get_logger(), "AUTO LiDAR model %s not found", lds_model.c_str());
-        lidar_model_ = "";
-        return;
-      } else {
-        RCLCPP_FATAL(this->get_logger(), "LiDAR model %s not found", lds_model.c_str());
-        rclcpp::shutdown();
-      }
+      RCLCPP_FATAL(this->get_logger(), "LDS model %s not found", lds_model.c_str());
+      rclcpp::shutdown();
+      return;
     }
 
     plds->setReadByteCallback(read_byte_callback);
@@ -425,13 +359,13 @@ private:
     if (pub_scan_size_ <= 0) {
       RCLCPP_FATAL(this->get_logger(), "Invalid pub_scan_size %d", pub_scan_size_);
       rclcpp::shutdown();
+      return;
     }
 
     // RCLCPP_INFO(this->get_logger(), "Laser sensor model %s, pub_scan_size_ %d, angle_offset_deg_ %f",
     //   lds_model.c_str(), pub_scan_size_, angle_offset_deg_);
-    RCLCPP_INFO(this->get_logger(), "LiDAR model %s", lds_model.c_str());
+    RCLCPP_INFO(this->get_logger(), "LDS model %s", lds_model.c_str());
     //RCLCPP_INFO(this->get_logger(), "mask_radius_meters_ %lf", mask_radius_meters_);
-    return;
   }
 
   void process_lds_data(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg)
@@ -580,13 +514,11 @@ private:
   }
 
   rclcpp::Subscription<kaiaai_msgs::msg::KaiaaiTelemetry2>::SharedPtr telem_sub_;
-  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_sub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_pub_;
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_pub_;
   rclcpp::Publisher<kaiaai_msgs::msg::WifiState>::SharedPtr wifi_state_pub_;
-  rclcpp::Publisher<kaiaai_msgs::msg::OnlineEvent>::SharedPtr online_event_pub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::vector<float> ranges_;
   std::vector<float> intensities_;
@@ -608,8 +540,6 @@ private:
   double mask_radius_meters_;
   bool broken_scan_;
   bool publish_intensity_;
-  bool robot_online_;
-  std::string lidar_model_;
 
   kaiaai_msgs::msg::KaiaaiTelemetry2 * pmsg;
   builtin_interfaces::msg::Time prev_stamp_;
