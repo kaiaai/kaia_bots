@@ -29,6 +29,9 @@ kaiaai_telemetry_node:
     diagnostics:
       topic_name_sub: "diagnostics"
 
+    online_event:
+      topic_name_pub: "online"
+
     tf:
       frame_id: "odom"
       child_frame_id: "base_footprint"

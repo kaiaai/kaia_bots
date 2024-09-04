@@ -19,6 +19,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "kaiaai_msgs/msg/kaiaai_telemetry2.hpp"
 #include "kaiaai_msgs/msg/wifi_state.hpp"
+#include "kaiaai_msgs/msg/online_event.hpp"
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <builtin_interfaces/msg/time.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -73,6 +74,7 @@ public:
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
     this->declare_parameter("diagnostics.topic_name_sub", "diagnostics");
+    this->declare_parameter("online_event.topic_name_pub", "online");
 
     this->declare_parameter("tf.frame_id", "odom");
     this->declare_parameter("tf.child_frame_id", "base_footprint");
@@ -107,6 +109,8 @@ public:
       this->get_parameter("battery.topic_name_pub").as_string(), 10);
     wifi_state_pub_ = this->create_publisher<kaiaai_msgs::msg::WifiState>(
       this->get_parameter("wifi.topic_name_pub").as_string(), 10);
+    online_event_pub_ = this->create_publisher<kaiaai_msgs::msg::OnlineEvent>(
+      this->get_parameter("online_event.topic_name_pub").as_string(), 10);
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     plds = NULL;
@@ -547,6 +551,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_pub_;
   rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_state_pub_;
   rclcpp::Publisher<kaiaai_msgs::msg::WifiState>::SharedPtr wifi_state_pub_;
+  rclcpp::Publisher<kaiaai_msgs::msg::OnlineEvent>::SharedPtr online_event_pub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::vector<float> ranges_;
   std::vector<float> intensities_;
