@@ -74,7 +74,10 @@ public:
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
     this->declare_parameter("diagnostics.topic_name_sub", "diagnostics");
+    this->declare_parameter("diagnostics.lds_component_name", "LIDAR");
+    this->declare_parameter("diagnostics.lds_model_key", "MODEL");
     this->declare_parameter("online_event.topic_name_pub", "online");
+    this->declare_parameter("online_event.timeout_sec", 30.0);
 
     this->declare_parameter("tf.frame_id", "odom");
     this->declare_parameter("tf.child_frame_id", "base_footprint");
@@ -129,6 +132,8 @@ public:
     prev_stamp_.nanosec = 0;
     broken_scan_ = false;
     publish_intensity_ = false;
+
+    robot_online_ = false;
   }
 
   ~KaiaaiTelemetry()
@@ -247,12 +252,19 @@ private:
     battery_state_pub_->publish(battery_state_msg);
   }
 
-
-
-
   void diag_topic_callback(const diagnostic_msgs::msg::DiagnosticArray & diag_msg) // const
   {
 
+    if (!robot_online_) {
+      robot_online_ = true;
+      auto online_event_msg = kaiaai_msgs::msg::OnlineEvent();
+      online_event_msg.event = kaiaai_msgs::msg::OnlineEvent::EVENT_ONLINE;
+      online_event_msg.diag = diag_msg;
+      online_event_pub_->publish(online_event_msg);
+    }
+
+    const std::string comp_name = this->get_parameter("diagnostics.lds_component_name").as_string();
+    std::string lidar_model;
 
     //RCLCPP_INFO(this->get_logger(), "%ld message(s) lost", seq_diff-1);
     //RCLCPP_INFO(this->get_logger(), "Diagnostic message %s", diag_msg.status[]);
@@ -260,14 +272,24 @@ private:
       auto status_msg = diag_msg.status[i];
       RCLCPP_INFO(this->get_logger(), "%lu diag status %s", i, status_msg.name.c_str());
 
+      if (comp_name.compare(status_msg.name) == 0) {
+        auto values = status_msg.values;
+        const std::string model_key = this->get_parameter("diagnostics.lds_model_key").as_string();
+
+        for (long unsigned int j = 0; j < values.size(); j++) {
+          auto key_value_msg = values[j];
+          if (model_key.compare(key_value_msg.key) == 0) {
+            lidar_model = key_value_msg.value;
+            break;
+          }
+        }
+        break;
+      }
     }
 
-
-    //auto diag_status_msg = diagnostic_msgs::msg::DiagnosticStatus();
+    // TODO check lidar_model, call setup(), print info
+    // TODO check online timeout, post offline event
   }
-
-
-
 
   void lds_setup()
   {
@@ -573,6 +595,7 @@ private:
   double mask_radius_meters_;
   bool broken_scan_;
   bool publish_intensity_;
+  bool robot_online_;
 
   kaiaai_msgs::msg::KaiaaiTelemetry2 * pmsg;
   builtin_interfaces::msg::Time prev_stamp_;

@@ -28,9 +28,12 @@ kaiaai_telemetry_node:
 
     diagnostics:
       topic_name_sub: "diagnostics"
+      lds_component_name: "LIDAR"
+      lds_model_key: "MODEL"
 
     online_event:
       topic_name_pub: "online"
+      timeout_sec: 30.0
 
     tf:
       frame_id: "odom"
