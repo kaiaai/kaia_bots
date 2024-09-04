@@ -40,7 +40,7 @@ public:
     recvPos = 0;
   }
 
-  static const std::string get_model_name() { return "RPLIDAR-A1"; }
+  static const std::string get_model_name() { return "SLAMTEC-RPLIDAR-A1"; }
 
   virtual float get_scan_time() override { return -1; }
 

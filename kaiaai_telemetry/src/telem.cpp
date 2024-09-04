@@ -356,7 +356,8 @@ private:
                       plds = new LDS_Delta2G();
                       break;
                     } else {
-                      if (s.compare(LDS_Delta2A::get_model_name()) == 0) {
+                      if (s.compare(LDS_Delta2A::get_model_name()) == 0 ||
+                          s.compare("3IROBOTIX-DELTA-2A-115200") == 0) {
                         plds = new LDS_Delta2A();
                         break;
                       } else {

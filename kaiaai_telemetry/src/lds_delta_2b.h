@@ -19,5 +19,5 @@ class LDS_Delta2B : public LDS_Delta2A
 {
 public:
   LDS_Delta2B() : LDS_Delta2A() {}
-  static const std::string get_model_name() { return "DELTA-2B"; }
+  static const std::string get_model_name() { return "3IROBOTIX-DELTA-2B"; }
 };

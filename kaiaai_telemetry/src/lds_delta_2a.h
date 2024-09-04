@@ -64,7 +64,7 @@ public:
     checksum = 0;
   }
 
-  static const std::string get_model_name() { return "DELTA-2A"; }
+  static const std::string get_model_name() { return "3IROBOTIX-DELTA-2A"; }
 
   virtual float get_scan_time() override {
     return (scan_freq_hz <= 0) ? 0 : 1.0f / scan_freq_hz;
