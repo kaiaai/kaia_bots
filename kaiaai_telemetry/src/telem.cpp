@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO check online timeout, post offline event
+// TODO extract robot package name, make it available (as parameter?)
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -264,7 +267,6 @@ private:
     }
 
     const std::string comp_name = this->get_parameter("diagnostics.lds_component_name").as_string();
-    std::string lidar_model;
 
     //RCLCPP_INFO(this->get_logger(), "%ld message(s) lost", seq_diff-1);
     //RCLCPP_INFO(this->get_logger(), "Diagnostic message %s", diag_msg.status[]);
@@ -279,16 +281,13 @@ private:
         for (long unsigned int j = 0; j < values.size(); j++) {
           auto key_value_msg = values[j];
           if (model_key.compare(key_value_msg.key) == 0) {
-            lidar_model = key_value_msg.value;
+            lidar_model_ = key_value_msg.value;
             break;
           }
         }
         break;
       }
     }
-
-    // TODO check lidar_model, call setup(), print info
-    // TODO check online timeout, post offline event
   }
 
   void lds_setup()
@@ -315,7 +314,15 @@ private:
       rclcpp::shutdown();
     }
 
-    const std::string lds_model = this->get_parameter("laser_scan.lds_model").as_string();
+    std::string lds_model = this->get_parameter("laser_scan.lds_model").as_string();
+    bool auto_ = (lds_model.compare("AUTO") == 0);
+
+    if (auto_) {
+      if (lidar_model_.length() == 0) {
+        return;
+      }
+      lds_model = lidar_model_;
+    }
 
     int model_idx = 0;
     for (auto &s: model) {
@@ -390,9 +397,14 @@ private:
     }
 
     if (plds == NULL) {
-      RCLCPP_FATAL(this->get_logger(), "LDS model %s not found", lds_model.c_str());
-      rclcpp::shutdown();
-      return;
+      if (auto_) {
+        RCLCPP_WARN(this->get_logger(), "AUTO LiDAR model %s not found", lds_model.c_str());
+        lidar_model_ = "";
+        return;
+      } else {
+        RCLCPP_FATAL(this->get_logger(), "LiDAR model %s not found", lds_model.c_str());
+        rclcpp::shutdown();
+      }
     }
 
     plds->setReadByteCallback(read_byte_callback);
@@ -412,13 +424,13 @@ private:
     if (pub_scan_size_ <= 0) {
       RCLCPP_FATAL(this->get_logger(), "Invalid pub_scan_size %d", pub_scan_size_);
       rclcpp::shutdown();
-      return;
     }
 
     // RCLCPP_INFO(this->get_logger(), "Laser sensor model %s, pub_scan_size_ %d, angle_offset_deg_ %f",
     //   lds_model.c_str(), pub_scan_size_, angle_offset_deg_);
-    RCLCPP_INFO(this->get_logger(), "LDS model %s", lds_model.c_str());
+    RCLCPP_INFO(this->get_logger(), "LiDAR model %s", lds_model.c_str());
     //RCLCPP_INFO(this->get_logger(), "mask_radius_meters_ %lf", mask_radius_meters_);
+    return;
   }
 
   void process_lds_data(const kaiaai_msgs::msg::KaiaaiTelemetry2 & telem_msg)
@@ -596,6 +608,7 @@ private:
   bool broken_scan_;
   bool publish_intensity_;
   bool robot_online_;
+  std::string lidar_model_;
 
   kaiaai_msgs::msg::KaiaaiTelemetry2 * pmsg;
   builtin_interfaces::msg::Time prev_stamp_;

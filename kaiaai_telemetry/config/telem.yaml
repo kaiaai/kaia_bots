@@ -6,7 +6,7 @@ kaiaai_telemetry_node:
       topic_name_pub: "scan"
       frame_id: "base_scan"
       discard_broken_scans: true
-#      lds_model: "LDS02RR"
+      lds_model: "AUTO"
 
     laser_sensor:
       model:            ['YDLIDAR-X4','XIAOMI-LDS02RR','YDLIDAR-X2-X2L','YDLIDAR-X3-PRO','YDLIDAR-X3-PRO','YDLIDAR-X3','NEATO-XV11','RPLIDAR-A1','DELTA-2G','DELTA-2A','DELTA-2B','LDROBOT-LD14P','CAMSENSE-X1','YDLIDAR-SCL']
