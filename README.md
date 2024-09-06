@@ -115,18 +115,18 @@ ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_mo
 ```
 # View parameters
 ros2 node list
-ros2 node info /MAKERSPET_LOKI
-ros2 param list /MAKERSPET_LOKI
-ros2 param dump /MAKERSPET_LOKI
+ros2 node info /pet
+ros2 param list /pet
+ros2 param dump /pet
 
 # Set the desired laser scan frequency to 7 Hz
-ros2 param set /MAKERSPET_LOKI lds.scan_freq 7.0
+ros2 param set /pet lds.scan_freq 7.0
 
 # Get the current desired laser scan frequency
-ros2 param get /MAKERSPET_LOKI lds.scan_freq
+ros2 param get /pet lds.scan_freq
 
 # Reset the desired laser scan frequency to default
-ros2 param set /MAKERSPET_LOKI lds.scan_freq 0.0
+ros2 param set /pet lds.scan_freq 0.0
 ```
 
 ### Operate a simulated robot
