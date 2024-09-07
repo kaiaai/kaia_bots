@@ -135,7 +135,6 @@ ros2 param set /pet lds.scan_freq 0.0
 # Launch the robot in a simulation - drive manually
 ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
 ros2 run kaiaai_teleop teleop_keyboard robot_model:=makerspet_loki
-ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py robot_model:=makerspet_loki
 ros2 launch kaiaai_bringup monitor_robot.launch.py robot_model:=makerspet_loki
 
 # Launch the robot in a simulation - robot self-drives around
