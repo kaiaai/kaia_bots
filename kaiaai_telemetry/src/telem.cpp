@@ -68,7 +68,6 @@ public:
     this->declare_parameter("laser_scan.lds_model", "YDLIDAR-X4");
     this->declare_parameter("laser_scan.mask_radius_meters", 0.0);
     this->declare_parameter("laser_scan.discard_broken_scans", false);
-    this->declare_parameter("laser_scan.orientation_deg", 0.0);
 
     this->declare_parameter("telemetry.topic_name_sub", "telemetry");
 
@@ -346,10 +345,9 @@ private:
     plds->setReadByteCallback(read_byte_callback);
     plds->setScanPointCallback(scan_point_callback);
 
-    double lidar_orientation_deg = this->get_parameter("laser_scan.orientation_deg").as_double();
     discard_broken_scans_ = this->get_parameter("laser_scan.discard_broken_scans").as_bool();
 
-    angle_offset_deg_ = angle_offset_deg[model_idx] + lidar_orientation_deg;
+    angle_offset_deg_ = angle_offset_deg[model_idx];
     clockwise_ = clockwise[model_idx];
     pub_scan_size_ = pub_scan_size[model_idx];
     range_min_meters_ = range_min_meters[model_idx];
