@@ -116,9 +116,10 @@ public:
     seq_last_ = 0;
     lds_data_idx_ = 0;
     pmsg = NULL;
-    prev_stamp_.sec = 0;
-    prev_stamp_.nanosec = 0;
+    scan_start_stamp_.sec = 0;
+    scan_start_stamp_.nanosec = 0;
     broken_scan_ = false;
+    discard_broken_scans_ = false;
     publish_intensity_ = false;
   }
 
@@ -346,6 +347,7 @@ private:
     plds->setScanPointCallback(scan_point_callback);
 
     double lidar_orientation_deg = this->get_parameter("laser_scan.orientation_deg").as_double();
+    discard_broken_scans_ = this->get_parameter("laser_scan.discard_broken_scans").as_bool();
 
     angle_offset_deg_ = angle_offset_deg[model_idx] + lidar_orientation_deg;
     clockwise_ = clockwise[model_idx];
@@ -433,13 +435,8 @@ private:
 //      angle_deg, distance_mm, quality, scan_completed);
 
     if (scan_completed) {
-      const bool discard_broken_scans = this->get_parameter("laser_scan.discard_broken_scans").as_bool();
-      if (!discard_broken_scans || !broken_scan_)
-        publish_scan();
-      broken_scan_ = false;
-
+      publish_scan();
       clear_ranges_buffer();
-      //return;
     }
 
     scan_point_count_total_++;
@@ -485,11 +482,22 @@ private:
     //  scan_point_count_total_, scan_point_count_valid_, lds_invalid_packet_count_, lds_crc_error_count_,
     //  lds_msg_count_, lds_data_length_);
 
+    if (broken_scan_ && discard_broken_scans_) {
+      broken_scan_ = false;
+      return;
+    }
+    broken_scan_ = false;
+
+    if (scan_start_stamp_.sec == 0 && scan_start_stamp_.nanosec == 0) {
+      scan_start_stamp_ = pmsg->stamp;
+      return;
+    }
+
     auto laser_scan_msg = sensor_msgs::msg::LaserScan();
     double laser_scan_angle_increment = 360.0 / pub_scan_size_;
 
     laser_scan_msg.ranges = ranges_;
-    laser_scan_msg.header.stamp = pmsg->stamp;
+    laser_scan_msg.header.stamp = scan_start_stamp_; //pmsg->stamp;
     laser_scan_msg.header.frame_id = this->get_parameter("laser_scan.frame_id").as_string();
     laser_scan_msg.angle_min = angle_offset_deg_ * DEG_TO_RAD;
     laser_scan_msg.angle_max = (angle_offset_deg_ + 360.0 * (pub_scan_size_ - 1) / pub_scan_size_) * DEG_TO_RAD;
@@ -499,16 +507,17 @@ private:
     if (publish_intensity_)
       laser_scan_msg.intensities = intensities_;
 
-    float scan_time = plds->get_scan_time();
-    if (scan_time <= 0) {
+    //float scan_time = plds->get_scan_time();
+    //if (scan_time <= 0) {
       // Hack up a scan time estimate
-      scan_time = pmsg->stamp.sec - prev_stamp_.sec + (pmsg->stamp.nanosec - prev_stamp_.nanosec)*1e-6;
-      scan_time = scan_time > 0.25 ? 0 : scan_time; // Require 4Hz scan minimum
-    }
+    float scan_time = pmsg->stamp.sec - scan_start_stamp_.sec + (pmsg->stamp.nanosec - scan_start_stamp_.nanosec)*1e-6;
+    scan_time = scan_time > 0.25 ? 0 : scan_time; // Require 4Hz scan minimum
+    //}
     scan_time = scan_time < 0 ? 0 : scan_time;
-    laser_scan_msg.scan_time = scan_time > 0 ? scan_time : 0;
-    laser_scan_msg.time_increment = scan_time/pub_scan_size_;
-    prev_stamp_ = pmsg->stamp;
+    //laser_scan_msg.scan_time = scan_time > 0 ? scan_time : 0;
+    laser_scan_msg.scan_time = scan_time;
+    laser_scan_msg.time_increment = scan_time/(pub_scan_size_ + 1);
+    scan_start_stamp_ = pmsg->stamp;
 
     laser_scan_pub_->publish(laser_scan_msg);
   }
@@ -539,10 +548,11 @@ private:
   double range_max_meters_;
   double mask_radius_meters_;
   bool broken_scan_;
+  bool discard_broken_scans_;
   bool publish_intensity_;
 
   kaiaai_msgs::msg::KaiaaiTelemetry2 * pmsg;
-  builtin_interfaces::msg::Time prev_stamp_;
+  builtin_interfaces::msg::Time scan_start_stamp_;
 };
 
 int main(int argc, char * argv[])
