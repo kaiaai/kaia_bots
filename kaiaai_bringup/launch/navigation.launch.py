@@ -86,11 +86,13 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
+            choices=['true', 'false'],
             description='Use simulation (Gazebo) clock if true'
         ),
         DeclareLaunchArgument(
             'slam',
-            default_value='false',
+            default_value='False',
+            choices=['True', 'False'],
             description='Navigate while creating a new map'
         ),
         OpaqueFunction(function=make_nodes, args=[
