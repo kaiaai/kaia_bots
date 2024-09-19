@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
-package_name = 'kaiaai_teleop'
+package_name = 'kaiaai'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -14,9 +14,9 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     author='Ilia O.',
-    author_email='iliao@remake.ai',
+    author_email='iliao@kaia.ai',
     maintainer='Ilia O.',
-    maintainer_email='iliao@remake.ai',
+    maintainer_email='iliao@kaia.ai',
     keywords=['ROS'],
     classifiers=[
         'Intended Audience :: Developers',
@@ -24,12 +24,12 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    description=('Control Kaia.ai-compatible robots using a keyboard'),
+    description=('Python interface for Kaia.ai-compatible robots'),
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'teleop_keyboard = kaiaai_teleop.teleop_keyboard:main'
+            'cli = kaiaai.cli:main'
         ],
     },
 )
