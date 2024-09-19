@@ -29,7 +29,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cli = kaiaai.cli:main'
+            'cli = scripts.cli:main'
         ],
     },
 )
