@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2023-2024 KAIA.AI, REMAKE.AI
 #
@@ -14,9 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+from kaiaai import config
+
 def main():
-    print('Hi from kaiaai.cli')
+  argv = sys.argv[1:]
+  if len(argv) == 3 and argv[0] == "config":
+    config.set_var(argv[1], argv[2])
 
 
 if __name__ == '__main__':
-    main()
+  main()
