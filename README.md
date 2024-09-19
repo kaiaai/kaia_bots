@@ -27,7 +27,7 @@ Kaia.ai robotics software platform is actively evolving and currently consists o
 - View build, setup and bringup [videos](https://www.youtube.com/playlist?list=PLOSXKDW70aR8SA16wTB0ou9ClKhv7micy)
   - This video is somewhat outdated; an up-to-date video will be published at a later time
 
-## Supported LiDAR/LDS sensors
+## Supported LiDAR sensors
 - YDLIDAR X4 (default), X2/X2L, X3, X3PRO, SCL
 - Neato XV11
 - Xiaomi Roborock 1st gen LDS02RR (~$16 off AliExpress including shipping)
@@ -94,21 +94,21 @@ ros2 launch explore_lite explore.launch.py
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
 ```
 
-### Specify LDS/LiDAR model to use
+### Specify LiDAR model to use
 ```
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=XIAOMI-LDS02RR
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X4
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3-PRO
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-SCL
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2A
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2B
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDROBOT-LD14P
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=CAMSENSE-X1
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=SLAMTEC-RPLIDAR-A1
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=XIAOMI-LDS02RR
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-X4
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-X3
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-X3-PRO
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-X2-X2L
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-SCL
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=NEATO-XV11
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=3IROBOTIX-DELTA-2A
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=3IROBOTIX-DELTA-2B
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=3IROBOTIX-DELTA-2G
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=LDROBOT-LD14P
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=CAMSENSE-X1
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=SLAMTEC-RPLIDAR-A1
 ```
 
 ### View, set physical robot's parameters
@@ -120,13 +120,13 @@ ros2 param list /pet
 ros2 param dump /pet
 
 # Set the desired laser scan frequency to 7 Hz
-ros2 param set /pet lds.scan_freq 7.0
+ros2 param set /pet lidar.scan_freq 7.0
 
 # Get the current desired laser scan frequency
-ros2 param get /pet lds.scan_freq
+ros2 param get /pet lidar.scan_freq
 
 # Reset the desired laser scan frequency to default
-ros2 param set /pet lds.scan_freq 0.0
+ros2 param set /pet lidar.scan_freq 0.0
 ```
 
 ### Operate a simulated robot
@@ -222,7 +222,7 @@ v0.6.0 2/11/2024
 - added 3irobotix Delta-2A, Delta-2G
 
 2/5/2024
-- added LiDAR/LDS laser distance scan sensors support
+- added LiDAR laser distance scan sensors support
   - YDLIDAR X3, X3-PRO
   - Neato XV11
   - RPLIDAR A1
@@ -236,7 +236,7 @@ v0.6.0 2/11/2024
 - added YDLIDAR X2 support to kaiaai_telemetry 
 
 1/21/2024
-- kaiaai_telemetry now supports multiple LiDAR/LDS laser distance scan sensors
+- kaiaai_telemetry now supports multiple LiDAR laser distance scan sensors
   - added Xiaomi Mi LDS02RR; default is YDLIDAR X4
 
 12/11/2024
