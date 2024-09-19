@@ -164,6 +164,18 @@ ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
 ros2 launch explore_lite explore.launch.py
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+
+# Launch the robot in a simulation - navigate and create a map simultaneously
+# Robot seeks out, self-drives to unknown locations to complete the mapping, saves map
+ros2 run auto_mapper auto_mapper map_path:=/ros_ws/map.yaml
+ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+
+# Launch the robot in a simulation - navigate and create a map simultaneously
+# Robot seeks out, self-drives to unknown locations to complete the mapping
+ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+ros2 run nav2_wfd explore
 ```
 
 ### Add your own modifications to an existing robot
