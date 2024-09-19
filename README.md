@@ -220,16 +220,12 @@ v0.7.0
 
 v0.6.0 2/11/2024
 - added 3irobotix Delta-2A, Delta-2G
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2A`
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G`
 
 2/5/2024
 - added LiDAR/LDS laser distance scan sensors support
   - YDLIDAR X3, X3-PRO
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3`
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3-PRO`
-  - Neato XV11 `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11`
-  - RPLIDAR A1 `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=SLAMTEC-RPLIDAR-A1`
+  - Neato XV11
+  - RPLIDAR A1
 - split kaiaai_telemetry config into default and custom
   - `kaiaai/kaiaai_telemetry/config/telem.yaml` is the default config
   - `makerspet_loki/config/telem.yaml` is the custom config for the Loki robot model
@@ -238,17 +234,13 @@ v0.6.0 2/11/2024
 
 1/28/2024
 - added YDLIDAR X2 support to kaiaai_telemetry 
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L`
 
 1/21/2024
 - kaiaai_telemetry now supports multiple LiDAR/LDS laser distance scan sensors
   - added Xiaomi Mi LDS02RR; default is YDLIDAR X4
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=XIAOMI-LDS02RR`
-  - `ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X4`
 
 12/11/2024
 - added fully automatic self-driving to map exploration (frontier exploration m-explore)
-  - `ros2 launch explore_lite explore.launch.py`
   - I think this code needs debug
 
 12/7/2024
