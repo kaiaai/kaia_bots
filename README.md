@@ -8,9 +8,12 @@ Please visit the [Support Forum](https://github.com/makerspet/support/discussion
 
 Kaia.ai robotics software platform is actively evolving and currently consists of these parts:
 - Micro-ROS Arduino library for Kaia.ai-compatible robots [repo](https://github.com/kaiaai/micro_ros_arduino_kaia)
+  - Micro-ROS LiDAR telemetry receiver [package](https://github.com/kaiaai/kaiaai_telemetry)
 - End-user and development ROS2 Docker images [repo](https://github.com/kaiaai/install)
-- Robot simulation ROS2 packages [repo](https://github.com/kaiaai/kaiaai_simulations)
-- Robot operation ROS2 packages [repo](https://github.com/kaiaai/kaiaai), including SLAM mapping, navigation, etc.
+- Robot Gazebo simulation ROS2 [package](https://github.com/kaiaai/kaiaai_gazebo)
+- Kaia.ai Python ROS2 software wrapper [package](https://github.com/kaiaai/kaiaai)
+- Robot operation ROS2 [repo](https://github.com/kaiaai/kaiaai_bringup), including SLAM mapping, navigation, frontier exploration, etc.
+- Robot keyboard teleoperation [package](https://github.com/kaiaai/kaiaai_teleop)
 - [WebRTC-based](https://github.com/kaiaai/kaiaai_python) image/video/data streaming
   - [Python-based](https://github.com/kaiaai/kaiaai_python) image/audio sensing, processing (ML), decision making (ML/AI), robot face animation (TODO)
 - Cloud software infrastructure (TODO)
@@ -141,7 +144,7 @@ ros2 launch kaiaai_bringup monitor_robot.launch.py
 # Launch the robot in a simulation - let it navigate automatically using an existing map
 ros2 launch kaiaai_gazebo world.launch.py
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true \
-  map:=/ros_ws/src/kaiaai_simulations/kaiaai_gazebo/map/living_room.yaml
+  map:=/ros_ws/src/kaiaai_gazebo/map/living_room.yaml
 
 # Launch the robot in a simulation - navigate and create a map simultaneously; save the map
 ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
