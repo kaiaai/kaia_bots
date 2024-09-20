@@ -41,7 +41,10 @@ def save(config):
 
 def get_var(var_name):
   config = load()
-  return config[var_name] if var_name in config.keys() else None
+  if var_name in config.keys():
+    return config[var_name]
+  else:
+    return 'makerspet_mini' if (var_name == 'robot.model') else None
 
 def set_var(var_name, var_value):
   config = load()
