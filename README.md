@@ -17,17 +17,13 @@ Kaia.ai robotics software platform is actively evolving and currently consists o
 - robot skills store (TODO)
 
 ## Kaia.ai compatible robots
-- Maker's Pet [Loki](https://github.com/makerspet/makerspet_loki) 200mm 3D-printable pet robot
-- Maker's Pet [Fido](https://github.com/makerspet/makerspet_fido) 250mm 3D-printable pet robot
-- Maker's Pet [Snoopy](https://github.com/makerspet/makerspet_snoopy) 300mm 3D-printable pet robot
-- Maker's Pet Mini 120mm
+- Maker's Pet [Loki](https://github.com/makerspet/makerspet_loki) 200mm 3D-printed pet robot
+- Maker's Pet [Fido](https://github.com/makerspet/makerspet_fido) 250mm 3D-printed pet robot
+- Maker's Pet [Snoopy](https://github.com/makerspet/makerspet_snoopy) 300mm 3D-printed pet robot
+- Maker's Pet [Mini](https://github.com/makerspet/makerspet_mini) 125mm 3D-printed educational robot
 - Add your own version to the [list](https://github.com/topics/kaiaai-robot)
 
-## Setup
-- View build, setup and bringup [videos](https://www.youtube.com/playlist?list=PLOSXKDW70aR8SA16wTB0ou9ClKhv7micy)
-  - This video is somewhat outdated; an up-to-date video will be published at a later time
-
-## Supported LiDAR/LDS sensors
+## Supported LiDAR sensors
 - YDLIDAR X4 (default), X2/X2L, X3, X3PRO, SCL
 - Neato XV11
 - Xiaomi Roborock 1st gen LDS02RR (~$16 off AliExpress including shipping)
@@ -38,14 +34,16 @@ Kaia.ai robotics software platform is actively evolving and currently consists o
 
 The entire up-to-date list of supported LiDAR is [here](https://github.com/kaiaai/LDS).
 
-## Command cheat sheets
+## Installation Instructions
+There are two ways to install ROS2 and Kaia.ai on your PC - using Docker (Windows, Linux) or Ubuntu 24.04 (physical PC of virtual machine).
+Follow the installation [instructions here](https://github.com/kaiaai/install).
 
-Example: operate [makerspet_loki](https://github.com/makerspet/makerspet_loki) robot using commands below.
-Operate Fido or Snoopy by replacing `loki` with `fido` or `snoopy` in commands below.
+Watch build, setup and bringup [videos](https://www.youtube.com/playlist?list=PLOSXKDW70aR8SA16wTB0ou9ClKhv7micy)
+- Note: these videos are outdated; updated videos will be published shortly for Maker's Pet Mini
 
-### Launch Docker image to operate your robot
-
-The Docker image contains ROS2 and micro-ROS pre-configured with additional Kaia.ai ROS2 packages.
+### Launch ROS2/Kaia.ai (Docker only)
+The [Kaia.ai Docker image](https://hub.docker.com/repository/docker/kaiaai/kaiaai/general) contains ROS2 and micro-ROS
+pre-configured with additional Kaia.ai ROS2 packages.
 
 Open a Windows command shell or Windows PowerShell window and type the command below. This should give you a bash prompt.
 ```
@@ -58,34 +56,47 @@ Get an aditional bash prompt by opening another Windows command shell or Windows
 docker exec -it makerspet bash
 ```
 
-### Operate a physical robot
+If you installed ROS2/Kaia.ai without Docker directly on a Ubuntu PC/VM, just boot your Ubuntu PC to a bash prompt.
+
+# Command cheat sheets
+
+`makerspet_mini` is the default robot model. When using another robot model, change the default model using Kaia.ai CLI.
+For example, the command below sets the default robot model to `makerspet_loki`.
+```
+kaia config robot.model makerspet_loki
+```
+
+## Operate a physical robot
+
+### Manual operation
+
 ```
 # Launch the physical robot
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup physical.launch.py
 
 # Drive robot manually
-ros2 run kaiaai_teleop teleop_keyboard robot_model:=makerspet_loki
+ros2 run kaiaai_teleop teleop_keyboard
 
 # Monitor robot sensors
-ros2 launch kaiaai_bringup monitor_robot.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup monitor_robot.launch.py
 
 # Create a map while driving manually
-ros2 launch kaiaai_bringup cartographer.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup cartographer.launch.py
 
 # Save the newly-created map
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
-
-# Robot self-drives using an existing map
-ros2 launch kaiaai_bringup navigation.launch.py robot_model:=makerspet_loki map:=$HOME/map
 ```
 
-Create a map automatically - no manual driving
+### Physical robot self-drives automatically
 ```
 # Launch the physical robot
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup physical.launch.py
+
+# Specify target location;; robot self-drives using an existing map
+ros2 launch kaiaai_bringup navigation.launch.py map:=$HOME/map
 
 # Launch SLAM (simultaneous localization and mapping) - navigate and map simultaneously
-ros2 launch kaiaai_bringup navigation.launch.py robot_model:=makerspet_loki slam:=True
+ros2 launch kaiaai_bringup navigation.launch.py slam:=True
 
 # Robot automatically seeks out, self-drives to unknown locations
 ros2 launch explore_lite explore.launch.py
@@ -94,24 +105,7 @@ ros2 launch explore_lite explore.launch.py
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
 ```
 
-### Specify LDS/LiDAR model to use
-```
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=XIAOMI-LDS02RR
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X4
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X3-PRO
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-X2-X2L
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=YDLIDAR-SCL
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=NEATO-XV11
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2A
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2B
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=3IROBOTIX-DELTA-2G
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=LDROBOT-LD14P
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=CAMSENSE-X1
-ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lds_model:=SLAMTEC-RPLIDAR-A1
-```
-
-### View, set physical robot's parameters
+### Inspect, set physical robot's parameters
 ```
 # View parameters
 ros2 node list
@@ -120,73 +114,100 @@ ros2 param list /pet
 ros2 param dump /pet
 
 # Set the desired laser scan frequency to 7 Hz
-ros2 param set /pet lds.scan_freq 7.0
+ros2 param set /pet lidar.scan_freq 7.0
 
 # Get the current desired laser scan frequency
-ros2 param get /pet lds.scan_freq
+ros2 param get /pet lidar.scan_freq
 
 # Reset the desired laser scan frequency to default
-ros2 param set /pet lds.scan_freq 0.0
+ros2 param set /pet lidar.scan_freq 0.0
 ```
 
-### Operate a simulated robot
+## Operate robot in simulated environment
+
+### Operate a simulated robot manually
 
 ```
 # Launch the robot in a simulation - drive manually
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 run kaiaai_teleop teleop_keyboard robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup monitor_robot.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 run kaiaai_teleop teleop_keyboard
+ros2 launch kaiaai_bringup monitor_robot.launch.py
 
 # Launch the robot in a simulation - robot self-drives around
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup monitor_robot.launch.py robot_model:=makerspet_loki
-
-# Launch the robot in a simulation - create, save a map; robot self-drives around
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup cartographer.launch.py use_sim_time:=true robot_model:=makerspet_loki
-ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py robot_model:=makerspet_loki
-ros2 run nav2_map_server map_saver_cli -f ~/living_room_map --ros-args -p save_map_timeout:=60.0
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py
+ros2 launch kaiaai_bringup monitor_robot.launch.py
 
 # Launch the robot in a simulation - let it navigate automatically using an existing map
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki \
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true \
   map:=/ros_ws/src/kaiaai_simulations/kaiaai_gazebo/map/living_room.yaml
 
 # Launch the robot in a simulation - navigate and create a map simultaneously; save the map
 ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+```
+
+### Let robot self-drive autonomously
+
+```
+# Launch the robot in a simulation - create, save a map; robot self-drives around trivially
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_bringup cartographer.launch.py use_sim_time:=true
+ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py
+ros2 run nav2_map_server map_saver_cli -f ~/living_room_map --ros-args -p save_map_timeout:=60.0
 
 # Launch the robot in a simulation - navigate and create a map simultaneously
 # Robot seeks out, self-drives to unknown locations to complete the mapping
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 launch explore_lite explore.launch.py
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
 
 # Launch the robot in a simulation - navigate and create a map simultaneously
 # Robot seeks out, self-drives to unknown locations to complete the mapping, saves map
 ros2 run auto_mapper auto_mapper map_path:=/ros_ws/map.yaml
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 
 # Launch the robot in a simulation - navigate and create a map simultaneously
 # Robot seeks out, self-drives to unknown locations to complete the mapping
-ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true robot_model:=makerspet_loki slam:=True
+ros2 launch kaiaai_gazebo world.launch.py
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 run nav2_wfd explore
 ```
+
+## Advanced Configuration
+
+### List of Supported LiDARs
+You can set `lidar_model` to any of these supported models: `XIAOMI-LDS02RR`, `YDLIDAR-X4`, `YDLIDAR-X3`,
+`YDLIDAR-X3-PRO`, `YDLIDAR-X2-X2L`, `YDLIDAR-SCL`, `NEATO-XV11`, `3IROBOTIX-DELTA-2A`, `3IROBOTIX-DELTA-2B`,
+`3IROBOTIX-DELTA-2G`, `LDROBOT-LD14P`, `CAMSENSE-X1`, `SLAMTEC-RPLIDAR-A1`.
+
 
 ### Add your own modifications to an existing robot
 ```
 # Inspect, edit robot's URDF model
-ros2 launch kaiaai_bringup inspect_urdf.launch.py robot_model:=makerspet_loki
-ros2 launch kaiaai_bringup edit_urdf.launch.py robot_model:=makerspet_loki
+ros2 launch kaiaai_bringup inspect_urdf.launch.py
+ros2 launch kaiaai_bringup edit_urdf.launch.py
 
 # Convert URDF robot model file into SDF Gazebo simulation model file
 ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/makerspet_loki
 cd /ros_ws && colcon build --symlink-install --packages-select makerspet_loki
+```
+
+### Overriding default robot and LiDAR models per launch
+Commands `physical.launch.py`, `teleop_keyboard`, `monitor_robot.launch.py`, `cartographer.launch.py`,
+`navigation.launch.py`, `inspect_urdf.launch.py`, `edit_urdf.launch.py` and `world.launch.py` accept
+an optional `robot_model` argument to override the default robot package setting, per launch.
+
+The `physical.launch.py` also accepts an optional `lidar_model` argument to override the default
+LiDAR model choice.
+
+For example, the command below will use the `makerspet_loki` robot model and `YDLIDAR-X3` LiDAR instead of the defaults.
+```
+ros2 launch kaiaai_bringup physical.launch.py robot_model:=makerspet_loki lidar_model:=YDLIDAR-X3
 ```
 
 ## Acknowledgements
@@ -195,6 +216,8 @@ Initial versions of packages in this repo are based on ROBOTIS
 
 ## Release notes
 v0.10.0 in debug
+- converted kaiaa from metapackage to Pyhon package
+- kaia CLI sets default robot model
 - added YDLIDAR SCL
   - added intensity telemetry publication
 - added Maker's Pet Mini
@@ -222,7 +245,7 @@ v0.6.0 2/11/2024
 - added 3irobotix Delta-2A, Delta-2G
 
 2/5/2024
-- added LiDAR/LDS laser distance scan sensors support
+- added LiDAR laser distance scan sensors support
   - YDLIDAR X3, X3-PRO
   - Neato XV11
   - RPLIDAR A1
@@ -236,7 +259,7 @@ v0.6.0 2/11/2024
 - added YDLIDAR X2 support to kaiaai_telemetry 
 
 1/21/2024
-- kaiaai_telemetry now supports multiple LiDAR/LDS laser distance scan sensors
+- kaiaai_telemetry now supports multiple LiDAR laser distance scan sensors
   - added Xiaomi Mi LDS02RR; default is YDLIDAR X4
 
 12/11/2024
