@@ -25,11 +25,11 @@ setup(
         'Topic :: Software Development',
     ],
     description=('Python interface for Kaia.ai-compatible robots'),
-    license='Apache License, Version 2.0',
+    license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cli = scripts.cli:main'
+            'cli = kaiaai.cli:main'
         ],
     },
 )
