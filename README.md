@@ -116,14 +116,17 @@ ros2 node info /pet
 ros2 param list /pet
 ros2 param dump /pet
 
+# Get the current laser scan frequency
+ros2 param get /pet lidar.scan.freq.now
+
 # Set the desired laser scan frequency to 7 Hz
-ros2 param set /pet lidar.scan_freq 7.0
+ros2 param set /pet lidar.scan.freq.target 7.0
 
 # Get the current desired laser scan frequency
-ros2 param get /pet lidar.scan_freq
+ros2 param get /pet lidar.scan.freq.target
 
 # Reset the desired laser scan frequency to default
-ros2 param set /pet lidar.scan_freq 0.0
+ros2 param set /pet lidar.scan.freq.target 0.0
 ```
 
 ## Operate robot in simulated environment
