@@ -16,52 +16,90 @@
 import rclpy
 from rclpy.node import Node
 from rcl_interfaces.srv import GetParameters, SetParameters
-from rcl_interfaces.msg import Parameter, ParameterType
+from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
 
 
 class ParamClient(Node):
 
-  def __init__(self, node_name, wait_for_service=true):
-    super().__init__('param_client')
+  def __init__(self, node_name, wait_for_service=True):
+    super().__init__('param_client' + node_name.replace('/', '_'))
 
     get_params_service_name = node_name + '/get_parameters'
-    self.geter = self.create_client(GetParameters, get_params_service_name)
+    self.getter = self.create_client(GetParameters, get_params_service_name)
 
     set_params_service_name = node_name + '/set_parameters'
     self.setter = self.create_client(SetParameters, set_params_service_name)
 
+    msg_waiting = ' not available, waiting ...'
+    service_timeout_sec = 5.0
+
     if wait_for_service:
       while not self.getter.wait_for_service(timeout_sec=service_timeout_sec):
-        self.get_logger().info(get_params_service_name + ' not available, waiting ...')
+        self.get_logger().info(get_params_service_name + msg_waiting)
 
       while not self.setter.wait_for_service(timeout_sec=service_timeout_sec):
-        self.get_logger().info(set_params_service_name + ' not available, waiting ...')
+        self.get_logger().info(set_params_service_name + msg_waiting)
 
     self.get_req = GetParameters.Request()
     self.set_req = SetParameters.Request()
 
-  def is_available(timeout_sec=0.001):
+  def wait_get_service(timeout_sec=0.001):
     return self.getter.wait_for_service(timeout_sec=service_timeout_sec)
 
-  def get(self, params_name_list):
-    self.get_req.names = params_name_list
+  def wait_set_service(timeout_sec=0.001):
+    return self.setter.wait_for_service(timeout_sec=service_timeout_sec)
 
-    self.future = self.getter.call_async(self.req)
+  def get(self, param_name):
+    if not isinstance(param_name, list):
+      param_name = [param_name]
+
+    self.get_req.names = param_name
+
+    self.future = self.getter.call_async(self.get_req)
     rclpy.spin_until_future_complete(self, self.future)
     return self.future.result()
 
+  def set(self, param_name, param_value):
+    if not isinstance(param_name, list):
+      param_name = [param_name]
 
-def main():
-  rclpy.init()
+    if not isinstance(param_value, list):
+      param_value = [param_value]
 
-  minimal_get_param_client = MinimalGetParamClientAsync()
+    for name, value in zip(param_name, param_value):
+      param = Parameter()
 
-  list_of_params_to_get = ['my_parameter', 'your_parameter']
-  response = minimal_get_param_client.send_request(list_of_params_to_get)
-  minimal_get_param_client.get_logger().info('First value: %s, Second value: %s'  % (response.values[0].string_value, response.values[1].string_value))
+      if isinstance(value, float):
+        val = ParameterValue(double_value=value, type=ParameterType.PARAMETER_DOUBLE)
+      elif isinstance(value, int):
+        val = ParameterValue(integer_value=value, type=ParameterType.PARAMETER_INTEGER)
+      elif isinstance(value, str):
+        val = ParameterValue(string_value=value, type=ParameterType.PARAMETER_STRING)
+      elif isinstance(value, bool):
+        val = ParameterValue(bool_value=value, type=ParameterType.PARAMETER_BOOL)
 
-  minimal_get_param_client.destroy_node()
-  rclpy.shutdown()
+      self.set_req.parameters.append(Parameter(name=name, value=val))
 
-if __name__ == '__main__':
-  main()
+    self.future = self.setter.call_async(self.set_req)
+    rclpy.spin_until_future_complete(self, self.future)
+    return self.future.result()
+
+  @staticmethod
+  def to_value(response):
+
+    val = []
+
+    for value in response.values:
+
+      if value.type == ParameterType.PARAMETER_DOUBLE:
+        val.append(value.double_value)
+      elif value.type == ParameterType.PARAMETER_INTEGER:
+        val.append(value.integer_value)
+      elif value.type == ParameterType.PARAMETER_STRING:
+        val.append(value.string_value)
+      elif value.type == ParameterType.PARAMETER_BOOL:
+        val.append(value.bool_value)
+      else:
+        val.append(None)
+
+    return val
