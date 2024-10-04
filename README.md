@@ -108,7 +108,9 @@ ros2 launch explore_lite explore.launch.py
 ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
 ```
 
-### Inspect, set physical robot's parameters
+## Use Command Line with Physical Robot
+
+### Get, Set Robot's Parameters
 ```
 # View parameters
 ros2 node list
@@ -127,6 +129,33 @@ ros2 param get /pet lidar.scan.freq.target
 
 # Reset the desired laser scan frequency to default
 ros2 param set /pet lidar.scan.freq.target 0.0
+```
+
+### Monitor Robot's Telemetry
+```
+# List available topics
+ros2 topic list
+
+# Get WiFi strength
+ros2 topic echo /wifi_state --once
+
+# View raw telemetry
+ros2 topic echo /telemetry --once
+
+# Get LiDAR scan data
+ros2 topic echo /scan --once
+
+# View current odometer value
+ros2 topic echo /odom --once
+
+# View current wheel rotation angles
+ros2 topic echo /joint_states --once
+
+# View current battery voltage, charge percentage
+ros2 topic echo /battery_state --once
+
+# View target velocity sent by kaiaai_telem or navigation
+ros2 topic echo /cmd_vel --once
 ```
 
 ## Operate robot in simulated environment
