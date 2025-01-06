@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2023-2024 KAIA.AI
+# Copyright 2023-2025 KAIA.AI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import rclpy
+import yaml
+import os
 from rclpy.node import Node
 from rcl_interfaces.srv import GetParameters, SetParameters
 from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
+from kaiaai import config
+from ament_index_python.packages import get_package_share_path
+
+class ModelParams():
+  def __init__(self):
+    robot_model_str = config.get_var('robot.model')
+    # load makerspet_mini/config/kaiaai.yaml
+
+    description_package_path = get_package_share_path(robot_model_str)
+
+    kaiaai_path_name = os.path.join(
+      description_package_path,
+      'config',
+      'kaiaai.yaml'
+    )
+
+    with open(kaiaai_path_name, 'r') as stream:
+      try:
+        self.params = yaml.safe_load(stream)
+      except yaml.YAMLError as exc:
+        print(exc)
+
+    # urdf_path_name = os.path.join(
+    #   description_package_path,
+    #   'urdf',
+    #   'robot.urdf.xacro')
+
+  def get_params(self):
+    return self.params
 
 
 class ParamClient(Node):
