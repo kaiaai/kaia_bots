@@ -16,19 +16,72 @@
 import rclpy
 import yaml
 import os
+import math
 from rclpy.node import Node
 from rcl_interfaces.srv import GetParameters, SetParameters
 from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
 from kaiaai import config
 from ament_index_python.packages import get_package_share_path
+from tf2_ros import TransformException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+
+
+class MapPose(Node):
+  def __init__(self):
+    super().__init__('kaiaai_utils_MapPose')
+    self.frame_from = 'base_footprint'
+    self.frame_to = 'map'
+    self.tf_buffer = Buffer()
+    self.tf_listener = TransformListener(self.tf_buffer, self)
+    self.current_x = 0.0
+    self.current_y = 0.0
+    self.current_yaw = 0.0
+
+  def get_map_pos_2d(self):
+    tf = None
+    try:
+      now = rclpy.time.Time()
+      tf = self.tf_buffer.lookup_transform(self.frame_to, self.frame_from, now)
+    except TransformException as ex:
+#     self.get_logger().info(f'Could not transform {self.frame_from} to {self.frame_from}: {ex}')
+      return None
+
+    x = tf.transform.translation.x
+    y = tf.transform.translation.y
+    roll, pitch, yaw = self.euler_from_quaternion(tf.transform.rotation)
+
+    return [x, y, yaw]
+
+  @staticmethod
+  def euler_from_quaternion(r):
+    """
+    Convert a quaternion into euler angles (roll, pitch, yaw)
+    roll is rotation around x in radians (counterclockwise)
+    pitch is rotation around y in radians (counterclockwise)
+    yaw is rotation around z in radians (counterclockwise)
+    """
+    t0 = +2.0 * (r.w * r.x + r.y * r.z)
+    t1 = +1.0 - 2.0 * (r.x * r.x + r.y * r.y)
+    roll_x = math.atan2(t0, t1)
+
+    t2 = +2.0 * (r.w * r.y - r.z * r.x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch_y = math.asin(t2)
+
+    t3 = +2.0 * (r.w * r.z + r.x * r.y)
+    t4 = +1.0 - 2.0 * (r.y * r.y + r.z * r.z)
+    yaw_z = math.atan2(t3, t4)
+
+    return roll_x, pitch_y, yaw_z
+
 
 class ModelParams():
   def __init__(self):
     robot_model_str = config.get_var('robot.model')
-    # load makerspet_mini/config/kaiaai.yaml
 
     description_package_path = get_package_share_path(robot_model_str)
-
     kaiaai_path_name = os.path.join(
       description_package_path,
       'config',
