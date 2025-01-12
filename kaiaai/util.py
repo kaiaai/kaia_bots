@@ -25,33 +25,87 @@ from ament_index_python.packages import get_package_share_path
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
+from nav2_msgs.srv import SaveMap
+from nav_msgs.msg import OccupancyGrid
+from nav_msgs.srv import GetMap
+from enum import Enum
 
 
-class MapPose(Node):
-  def __init__(self):
-    super().__init__('kaiaai_utils_MapPose')
-    self.frame_from = 'base_footprint'
-    self.frame_to = 'map'
+class NavUtils(Node):
+  def __init__(self, global_frame_id='map', base_frame_id='base_footprint'):
+    super().__init__('kaiaai_utils')
+    self.base_frame_id = base_frame_id
+    self.global_frame_id = global_frame_id
     self.tf_buffer = Buffer()
     self.tf_listener = TransformListener(self.tf_buffer, self)
-    self.current_x = 0.0
-    self.current_y = 0.0
-    self.current_yaw = 0.0
+    self.map_saver_srv = self.create_client(SaveMap, 'map_server/save_map')
+    self.map_srv = self.create_client(GetMap, 'slam_toolbox/dynamic_map')
+    self.map_sub = self.create_subscription(OccupancyGrid(), '/map', self.mapCallback, 10)
 
-  def get_map_pos_2d(self):
+  def saveMap(self, map_filepath='my_map', map_topic='map', image_format='pgm',
+    map_mode='trinary', free_thresh=0.25, occupied_thresh=0.65):
+    """Save the current static map to a file"""
+
+    # Alternative: call /slam_toolbox/save_map
+    while not self.map_saver_srv.wait_for_service(timeout_sec=1.0):
+      self.info('map_saver/save_map service not available, waiting...')
+    req = SaveMap.Request()
+    req.map_url = map_filepath
+    req.map_topic = map_topic
+    req.image_format = image_format
+    req.map_mode = map_mode
+    req.free_thresh = free_thresh
+    req.occupied_thresh = occupied_thresh
+
+    future = self.map_saver_srv.call_async(req)
+    rclpy.spin_until_future_complete(self, future)
+
+    return future.result().result
+
+  def mapCallback(self, msg):
+    self.map = OccupancyGrid2d(msg)
+
+  def getMap(self):
+    return self.map
+
+  def getCurrentMap(self):
+    """Get the SLAM current OccupancyGrid"""
+    # subscribe to /map topic (published by /slam_toolbox or /map_server)
+    # call /map_server/get_map (if map_server is running)
+    # call /slam_toolbox/dynamic_map nav_msgs/srv/GetMap
+
+    # Alternative: call /slam_toolbox/save_map
+    while not self.map_srv.wait_for_service(timeout_sec=1.0):
+      self.info('slam_toolbox/get_map service not available, waiting...')
+
+    req = GetMap.Request()
+    future = self.map_srv.call_async(req)
+    rclpy.spin_until_future_complete(self, future)
+
+    map = future.result().map
+    return OccupancyGrid2d(map)
+
+  def getMapPos2d(self):
+    # Alternative: subscribe to /pose
     tf = None
     try:
       now = rclpy.time.Time()
-      tf = self.tf_buffer.lookup_transform(self.frame_to, self.frame_from, now)
+      tf = self.tf_buffer.lookup_transform(self.global_frame_id, self.base_frame_id, now)
     except TransformException as ex:
-#     self.get_logger().info(f'Could not transform {self.frame_from} to {self.frame_from}: {ex}')
+#     self.get_logger().info(f'Could not transform {self.base_frame_id} to {self.global_frame_id}: {ex}')
       return None
 
-    x = tf.transform.translation.x
-    y = tf.transform.translation.y
+    pos = dict()
+    pos['x'] = tf.transform.translation.x
+    pos['y'] = tf.transform.translation.y
     roll, pitch, yaw = self.euler_from_quaternion(tf.transform.rotation)
+    pos['yaw'] = yaw
 
-    return [x, y, yaw]
+    return pos
+
+  def info(self, msg):
+    self.get_logger().info(msg)
+    return
 
   @staticmethod
   def euler_from_quaternion(r):
@@ -76,9 +130,8 @@ class MapPose(Node):
 
     return roll_x, pitch_y, yaw_z
 
-
-class ModelParams():
-  def __init__(self):
+  @staticmethod
+  def getModelParams():
     robot_model_str = config.get_var('robot.model')
 
     description_package_path = get_package_share_path(robot_model_str)
@@ -90,7 +143,7 @@ class ModelParams():
 
     with open(kaiaai_path_name, 'r') as stream:
       try:
-        self.params = yaml.safe_load(stream)
+        params = yaml.safe_load(stream)
       except yaml.YAMLError as exc:
         print(exc)
 
@@ -99,8 +152,7 @@ class ModelParams():
     #   'urdf',
     #   'robot.urdf.xacro')
 
-  def get_params(self):
-    return self.params
+    return params
 
 
 class ParamClient(Node):
@@ -187,3 +239,50 @@ class ParamClient(Node):
         val.append(None)
 
     return val
+
+
+class OccupancyGrid2d():
+  class CostValues(Enum):
+    FreeSpace = 0
+    InscribedInflated = 100
+    LethalObstacle = 100
+    NoInformation = -1
+
+  def __init__(self, map):
+    self.map = map
+
+  def getCost(self, mx, my):
+    return self.map.data[self.__getIndex(mx, my)]
+
+  def getSize(self):
+    return (self.map.info.width, self.map.info.height)
+
+  def getSizeX(self):
+    return self.map.info.width
+
+  def getSizeY(self):
+    return self.map.info.height
+
+  def getResolution(self):
+    return self.map.info.resolution
+
+  def mapToWorld(self, mx, my):
+    wx = self.map.info.origin.position.x + (mx + 0.5) * self.map.info.resolution
+    wy = self.map.info.origin.position.y + (my + 0.5) * self.map.info.resolution
+
+    return (wx, wy)
+
+  def worldToMap(self, wx, wy):
+    if (wx < self.map.info.origin.position.x or wy < self.map.info.origin.position.y):
+      raise Exception("World coordinates out of bounds")
+
+    mx = int((wx - self.map.info.origin.position.x) / self.map.info.resolution)
+    my = int((wy - self.map.info.origin.position.y) / self.map.info.resolution)
+
+    if (my > self.map.info.height or mx > self.map.info.width):
+      raise Exception("Out of bounds")
+
+    return (mx, my)
+
+  def __getIndex(self, mx, my):
+    return my * self.map.info.width + mx
