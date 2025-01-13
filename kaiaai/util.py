@@ -29,6 +29,9 @@ from nav2_msgs.srv import SaveMap
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.srv import GetMap
 from enum import Enum
+import numpy as np
+from PIL import Image
+import yaml
 
 
 class NavUtils(Node):
@@ -251,6 +254,36 @@ class OccupancyGrid2d():
   def __init__(self, map):
     self.map = map
 
+  def save(self, image_pathname='map.png'):
+    data = np.array(self.map.data, dtype=np.uint8).reshape(self.getSizeY(), self.getSizeX())
+    img = Image.fromarray(data, mode='L')
+    img.save(image_pathname)
+
+    orientation = self.getOrientation()
+    data = dict(
+      resolution = self.getResolution(),
+      origin = dict(
+        position = dict(
+          x = self.getOriginX(),
+          y = self.getOriginY(),
+          # yaw = self.getOriginYaw(),
+        ),
+        orientation = dict(
+          x = orientation.x,
+          y = orientation.y,
+          z = orientation.z,
+          w = orientation.w,
+        ),
+      ),
+    )
+
+    yaml_pathname = image_pathname + '.yaml'
+    with open(yaml_pathname, 'w') as outfile:
+      yaml.dump(data, outfile) # default_flow_style=False
+
+  def getOrientation(self):
+    return self.map.info.origin.orientation
+
   def getCost(self, mx, my):
     return self.map.data[self.__getIndex(mx, my)]
 
@@ -265,6 +298,16 @@ class OccupancyGrid2d():
 
   def getResolution(self):
     return self.map.info.resolution
+
+  def getOriginX(self):
+    return self.map.info.origin.position.x
+
+  def getOriginY(self):
+    return self.map.info.origin.position.y
+
+  def getOriginYaw(self):
+    roll, pitch, yaw = NavUtils.euler_from_quaternion(self.map.info.origin.orientation)
+    return yaw
 
   def mapToWorld(self, mx, my):
     wx = self.map.info.origin.position.x + (mx + 0.5) * self.map.info.resolution
