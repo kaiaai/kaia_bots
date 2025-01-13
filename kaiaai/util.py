@@ -254,6 +254,43 @@ class OccupancyGrid2d():
   def __init__(self, map):
     self.map = map
 
+  @staticmethod
+  def load(image_pathname='map.png'):
+    img = Image.open(image_pathname)
+
+    yaml_pathname = image_pathname + '.yaml'
+    with open(yaml_pathname) as stream:
+    # try:
+      props = yaml.safe_load(stream)
+    # except yaml.YAMLError as exc:
+    #   print(exc)
+
+    msg = OccupancyGrid()
+    width, height = img.size
+    msg.info.width = width
+    msg.info.height = height
+    msg.info.resolution = props['resolution']
+    msg.header.frame_id = props['frame_id']
+
+    position = props['origin']['position']
+    msg.info.origin.position.x = position['x']
+    msg.info.origin.position.y = position['y']
+    # msg.info.origin.position.z = position['z']
+
+    orientation = props['origin']['orientation']
+    msg.info.origin.orientation.x = orientation['x']
+    msg.info.origin.orientation.y = orientation['y']
+    msg.info.origin.orientation.z = orientation['z']
+    msg.info.origin.orientation.w = orientation['w']
+
+    np_array = np.array(img)
+    np_array = np_array.flatten()
+    np_array = np_array.astype(np.int8)
+    msg.data = np_array.tolist()
+
+    map = OccupancyGrid2d(msg)
+    return map
+
   def save(self, image_pathname='map.png'):
     data = np.array(self.map.data, dtype=np.uint8).reshape(self.getSizeY(), self.getSizeX())
     img = Image.fromarray(data, mode='L')
@@ -261,11 +298,13 @@ class OccupancyGrid2d():
 
     orientation = self.getOrientation()
     data = dict(
+      frame_id = self.map.header.frame_id,
       resolution = self.getResolution(),
       origin = dict(
         position = dict(
           x = self.getOriginX(),
           y = self.getOriginY(),
+          # z = self.map.info.origin.position.z
           # yaw = self.getOriginYaw(),
         ),
         orientation = dict(
