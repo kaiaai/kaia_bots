@@ -32,6 +32,7 @@ from enum import Enum
 import numpy as np
 from PIL import Image
 import yaml
+from nav2_simple_commander.robot_navigator import TaskResult
 
 
 class NavUtils(Node):
@@ -88,15 +89,18 @@ class NavUtils(Node):
     map = future.result().map
     return OccupancyGrid2d(map)
 
-  def getMapPos2d(self):
-    # Alternative: subscribe to /pose
+  def getMapPos(self):
+
     tf = None
-    try:
-      now = rclpy.time.Time()
-      tf = self.tf_buffer.lookup_transform(self.global_frame_id, self.base_frame_id, now)
-    except TransformException as ex:
-#     self.get_logger().info(f'Could not transform {self.base_frame_id} to {self.global_frame_id}: {ex}')
-      return None
+    while tf == None:
+      tf = self.tryGetMapPos()
+      rclpy.spin_once(self)
+
+    return tf
+
+  def getMapPos2d(self):
+
+    tf = self.getMapPos()
 
     pos = dict()
     pos['x'] = tf.transform.translation.x
@@ -105,6 +109,18 @@ class NavUtils(Node):
     pos['yaw'] = yaw
 
     return pos
+
+  def tryGetMapPos(self):
+    # Alternative: subscribe to /pose
+    tf = None
+    try:
+      now = rclpy.time.Time()
+      tf = self.tf_buffer.lookup_transform(self.global_frame_id, self.base_frame_id, now)
+    except TransformException as ex:
+      # self.get_logger().info(f'Could not transform {self.base_frame_id} to {self.global_frame_id}: {ex}')
+      return None
+
+    return tf
 
   def info(self, msg):
     self.get_logger().info(msg)
@@ -156,6 +172,17 @@ class NavUtils(Node):
     #   'robot.urdf.xacro')
 
     return params
+
+  @staticmethod
+  def taskResultToText(result: TaskResult):
+    if result == TaskResult.SUCCEEDED:
+        return 'Goal succeeded'
+    elif result == TaskResult.CANCELED:
+        return 'Goal was canceled'
+    elif result == TaskResult.FAILED:
+        return 'Goal failed'
+    else:
+        return 'Goal has an invalid return status'
 
 
 class ParamClient(Node):
@@ -368,3 +395,29 @@ class OccupancyGrid2d():
 
   def __getIndex(self, mx, my):
     return my * self.map.info.width + mx
+
+
+class Costmap2d():
+    class CostValues(Enum):
+        FreeSpace = 0
+        InscribedInflated = 253
+        LethalObstacle = 254
+        NoInformation = 255
+    
+    def __init__(self, map):
+        self.map = map
+
+    def getCost(self, mx, my):
+        return self.map.data[self.__getIndex(mx, my)]
+
+    def getSize(self):
+        return (self.map.metadata.size_x, self.map.metadata.size_y)
+
+    def getSizeX(self):
+        return self.map.metadata.size_x
+
+    def getSizeY(self):
+        return self.map.metadata.size_y
+
+    def __getIndex(self, mx, my):
+        return my * self.map.metadata.size_x + mx
