@@ -56,7 +56,7 @@ docker run --name makerspet -it --rm -p 8888:8888/udp -p 4430:4430/tcp -e DISPLA
 
 If you will be saving or loading maps, mount a directory. Replace `MyUserName` with your actual username.
 ```
-docker run --name makerspet -it --rm c:\Users\MyUserName\maps:/root/maps -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
+docker run --name makerspet -it --rm c:\Users\MyUserName\maps:/root -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
 ```
 
 Get an aditional bash prompt by opening another Windows command shell or Windows PowerShell window and typing:
