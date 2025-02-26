@@ -49,10 +49,10 @@ The [Kaia.ai Docker image](https://hub.docker.com/repository/docker/kaiaai/kaiaa
 pre-configured with additional Kaia.ai ROS2 packages.
 
 Open a Windows command shell or Windows PowerShell window and type the command below. This should give you a bash prompt.
-Note that your `c:\maps` will be mapped to `/root` to store navigation maps. Feel free to change `c:\maps` path to a more suitable location, e.g. `c:\Users\MyUserName\maps`.
+Note that your `c:\maps` will be mapped to `/root/maps` to store navigation maps. Feel free to change `c:\maps` path to a more suitable location, e.g. `c:\Users\MyUserName\maps`.
 ```
 docker pull kaiaai/kaiaai:iron
-docker run --name makerspet -it --rm c:\maps:/root -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
+docker run --name makerspet -it --rm c:\maps:/root/maps -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
 ```
 
 Get an aditional bash prompt by opening another Windows command shell or Windows PowerShell window and typing:
@@ -88,7 +88,7 @@ ros2 launch kaiaai_bringup monitor_robot.launch.py
 ros2 launch kaiaai_bringup cartographer.launch.py
 
 # Save the newly-created map
-ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+ros2 run nav2_map_server map_saver_cli -f ~/maps/map --ros-args -p save_map_timeout:=60.0
 ```
 
 ### Physical robot self-drives automatically
@@ -106,7 +106,7 @@ ros2 launch kaiaai_bringup navigation.launch.py slam:=True
 ros2 launch explore_lite explore.launch.py
 
 # Save the newly-created map
-ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+ros2 run nav2_map_server map_saver_cli -f ~/maps/map --ros-args -p save_map_timeout:=60.0
 ```
 
 ## Use Command Line with Physical Robot
@@ -182,7 +182,7 @@ ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true \
 # Launch the robot in a simulation - navigate and create a map simultaneously; save the map
 ros2 launch kaiaai_gazebo world.launch.py robot_model:=makerspet_loki
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
-ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+ros2 run nav2_map_server map_saver_cli -f ~/maps/map --ros-args -p save_map_timeout:=60.0
 ```
 
 ### Let robot self-drive autonomously
@@ -192,14 +192,14 @@ ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=
 ros2 launch kaiaai_gazebo world.launch.py
 ros2 launch kaiaai_bringup cartographer.launch.py use_sim_time:=true
 ros2 launch kaiaai_gazebo self_drive_gazebo.launch.py
-ros2 run nav2_map_server map_saver_cli -f ~/living_room_map --ros-args -p save_map_timeout:=60.0
+ros2 run nav2_map_server map_saver_cli -f ~/maps/living_room_map --ros-args -p save_map_timeout:=60.0
 
 # Launch the robot in a simulation - navigate and create a map simultaneously
 # Robot seeks out, self-drives to unknown locations to complete the mapping
 ros2 launch kaiaai_gazebo world.launch.py
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 launch explore_lite explore.launch.py
-ros2 run nav2_map_server map_saver_cli -f ~/map --ros-args -p save_map_timeout:=60.0
+ros2 run nav2_map_server map_saver_cli -f ~/maps/map --ros-args -p save_map_timeout:=60.0
 
 # Launch the robot in a simulation - navigate and create a map simultaneously
 # Robot seeks out, self-drives to unknown locations to complete the mapping, saves map
