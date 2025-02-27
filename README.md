@@ -2,7 +2,9 @@
 
 [Kaia.ai](https://kaia.ai) is a software platform for intelligent robots. Please read our blog for [more](https://kaia.ai/blog/what-is-kaia-ai/).
 
-Please sign up for a Kickstarter pre-launch invite [here](https://remake.ai). We plan to launch on Kickstarter in 2nd half of 2024 via our [Maker's Pet](https://makerspet.com) hardware partner's campaign.
+A step-by-step usage example with videos is [here](https://makerspet.com/blog/BLD-120MM-PACK/).
+
+Please sign up for a Kickstarter pre-launch invite [here](https://remake.ai). We plan to launch on Kickstarter in 1nd half of 2025 via our [Maker's Pet](https://makerspet.com) hardware partner's campaign.
 
 Please visit the [Support Forum](https://github.com/makerspet/support/discussions/)!
 
