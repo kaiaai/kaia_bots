@@ -99,7 +99,7 @@ ros2 run nav2_map_server map_saver_cli -f ~/maps/map --ros-args -p save_map_time
 ros2 launch kaiaai_bringup physical.launch.py
 
 # Specify target location;; robot self-drives using an existing map
-ros2 launch kaiaai_bringup navigation.launch.py map:=$HOME/maps/map
+ros2 launch kaiaai_bringup navigation.launch.py map:=$HOME/maps/map.yaml
 
 # Launch SLAM (simultaneous localization and mapping) - navigate and map simultaneously
 ros2 launch kaiaai_bringup navigation.launch.py slam:=True
