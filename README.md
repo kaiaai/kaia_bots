@@ -54,7 +54,7 @@ Open a Windows command shell or Windows PowerShell window and type the command b
 Note that your `c:\maps` will be mapped to `/root/maps` to store navigation maps. Feel free to change `c:\maps` path to a more suitable location, e.g. `c:\Users\MyUserName\maps`.
 ```
 docker pull kaiaai/kaiaai:iron
-docker run --name makerspet -it --rm c:\maps:/root/maps -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
+docker run --name makerspet -it --rm -v c:\maps:/root/maps -p 8888:8888/udp -p 4430:4430/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 kaiaai/kaiaai:iron
 ```
 
 Get an aditional bash prompt by opening another Windows command shell or Windows PowerShell window and typing:
